@@ -1,47 +1,77 @@
-/**
- * Blog feed data (edit this file to update the "LOGS" section).
- *
- * Fields used by UI:
- * - id: unique number
- * - category: string
- * - date: string (display only)
- * - title: string
- * - preview: string
- * - tags: string[]
- */
-export const blogs = [
-  {
-    id: 1,
-    category: "ENGINEERING",
-    date: "NOV 19, 2025",
-    title: "React Server Components: A Love Story",
-    preview: "深入解析 RSC 架构，探讨为什么它是前端开发的未来，以及如何避免常见的陷阱。",
-    tags: ["#REACT", "#PERFORMANCE"],
-  },
-  {
-    id: 2,
-    category: "DESIGN",
-    date: "OCT 24, 2025",
-    title: "Chaos in UI: Neo-Brutalism Explained",
-    preview: "为什么‘丑’成为了新的‘美’？从设计心理学角度分析新野兽派的崛起。",
-    tags: ["#DESIGN", "#TRENDS"],
-  },
-  {
-    id: 3,
-    category: "ALGORITHMS",
-    date: "SEP 10, 2025",
-    title: "Optimizing Graph Traversal for Large Datasets",
-    preview: "在处理数百万节点时，传统的 DFS/BFS 已经不够用了。看看这些高级优化技巧。",
-    tags: ["#CS", "#MATH"],
-  },
-  {
-    id: 4,
-    category: "THOUGHTS",
-    date: "DEC 23, 2025",
-    title: "为什么尼采讨厌道德？",
-    preview: "尼采认为道德是人类文明的产物，是人类对自身行为的规范和约束",
-    tags: ["#THOUGHTS"],
-  },
-];
+import matter from "gray-matter";
 
+/**
+ * Blog posts are stored as individual Markdown files under:
+ *   src/content/blogs/*.md
+ *
+ * Each file uses YAML frontmatter, e.g.
+ *   ---
+ *   id: 1
+ *   slug: my-post
+ *   category: ENGINEERING
+ *   date: 2025-12-23
+ *   title: Hello
+ *   preview: short excerpt
+ *   tags: [REACT, DX]
+ *   ---
+ *   markdown body...
+ */
+
+const files = import.meta.glob("../content/blogs/*.md", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+
+function formatDate(iso) {
+  if (!iso) return "";
+  const d = new Date(String(iso));
+  if (Number.isNaN(d.getTime())) return String(iso);
+  const s = d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+  return s.toUpperCase();
+}
+
+function getFilenameSlug(path) {
+  const name = String(path).split("/").pop() || "";
+  return name.replace(/\.md$/, "").replace(/^\d{4}-\d{2}-\d{2}-/, "");
+}
+
+function normalizeTags(tags) {
+  if (!tags) return [];
+  const arr = Array.isArray(tags) ? tags : String(tags).split(/[,\s]+/);
+  return arr
+    .map((t) => String(t).trim())
+    .filter(Boolean)
+    .map((t) => (t.startsWith("#") ? t : `#${t.toUpperCase()}`));
+}
+
+export const blogs = Object.entries(files)
+  .map(([path, raw]) => {
+    const { data, content } = matter(raw);
+    const id = Number(data.id);
+    const slug = data.slug || getFilenameSlug(path);
+    const dateIso = data.date;
+    return {
+      id: Number.isFinite(id) ? id : undefined,
+      slug: String(slug),
+      category: String(data.category || "THOUGHTS"),
+      date: formatDate(dateIso),
+      dateIso: dateIso ? String(dateIso) : "",
+      title: String(data.title || slug),
+      preview: String(data.preview || "").trim(),
+      tags: normalizeTags(data.tags),
+      body: String(content || "").trim(),
+    };
+  })
+  // newest first (falls back to id if no date)
+  .sort((a, b) => {
+    const at = a.dateIso ? new Date(a.dateIso).getTime() : 0;
+    const bt = b.dateIso ? new Date(b.dateIso).getTime() : 0;
+    if (bt !== at) return bt - at;
+    return (b.id || 0) - (a.id || 0);
+  });
 

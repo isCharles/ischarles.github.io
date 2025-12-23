@@ -6,6 +6,8 @@ import {
   MessageSquare, Hash, ExternalLink, Command
 } from 'lucide-react';
 import { blogs } from './data/blogs.js';
+import { Modal } from './components/Modal.jsx';
+import { BlogPage } from './pages/BlogPage.jsx';
 
 // --- Custom CSS for Advanced Animations ---
 const customStyles = `
@@ -139,9 +141,34 @@ const customStyles = `
 `;
 
 const App = () => {
+  const X_HANDLE = "ischarlesyang";
+  const X_URL = `https://x.com/${X_HANDLE}`;
+  const EMAIL = "ischarlesyang@gmail.com";
+  const EMAIL_URL = `mailto:${EMAIL}`;
+  const COMMENTS_REPO = "isCharles/ischarles.github.io";
+
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const [scrolled, setScrolled] = useState(0);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [activeProject, setActiveProject] = useState(null);
+
+  const parseRoute = () => {
+    const hash = window.location.hash || "";
+    // Blog route: #/blog/<slugOrId>
+    if (hash.startsWith("#/blog/")) {
+      const key = decodeURIComponent(hash.slice("#/blog/".length)).trim();
+      return { name: "blog", key };
+    }
+    // Section anchors: #home/#work/#thoughts/#contact
+    const section = hash.replace(/^#/, "");
+    if (["home", "work", "thoughts", "contact", "about"].includes(section)) {
+      return { name: "home", section };
+    }
+    return { name: "home", section: null };
+  };
+
+  const [route, setRoute] = useState(parseRoute);
   
   // --- Custom Cursor Logic ---
   useEffect(() => {
@@ -164,8 +191,42 @@ const App = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const onHashChange = () => setRoute(parseRoute());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
   const handleMouseEnter = () => setIsHovering(true);
   const handleMouseLeave = () => setIsHovering(false);
+
+  const scrollToId = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const getBlogPath = (blog) => `#/blog/${encodeURIComponent(blog.slug || String(blog.id))}`;
+
+  const findBlogByKey = (key) => {
+    if (!key) return null;
+    const normalized = String(key).trim().toLowerCase();
+    return (
+      blogs.find((b) => String(b.id) === normalized) ||
+      blogs.find((b) => String(b.slug || "").toLowerCase() === normalized) ||
+      null
+    );
+  };
+
+  const activeBlog = route.name === "blog" ? findBlogByKey(route.key) : null;
+
+  useEffect(() => {
+    if (route.name === "home" && route.section) {
+      // allow layout to paint before scrolling
+      setTimeout(() => scrollToId(route.section), 0);
+    }
+  }, [route.name, route.section]);
+
+  // NOTE: Blog page is rendered via src/pages/BlogPage.jsx (keeps hooks lint happy)
 
   // --- Data Mocks ---
   const techStack = [
@@ -195,6 +256,18 @@ const App = () => {
       color: "border-cyan-400"
     }
   ];
+
+  if (route.name === "blog") {
+    return (
+      <BlogPage
+        blog={activeBlog}
+        xUrl={X_URL}
+        xHandle={X_HANDLE}
+        emailUrl={EMAIL_URL}
+        commentsRepo={COMMENTS_REPO}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-[#ff00ff] selection:text-white overflow-hidden relative">
@@ -235,12 +308,74 @@ const App = () => {
         </div>
         <button 
           className="md:hidden text-[#ccff00]"
+          type="button"
+          onClick={() => setMobileNavOpen((v) => !v)}
           onMouseEnter={handleMouseEnter} 
           onMouseLeave={handleMouseLeave}
         >
           <Layers size={28} />
         </button>
       </nav>
+
+      {/* Mobile Nav */}
+      {mobileNavOpen ? (
+        <div className="fixed inset-0 z-[150] md:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/80 cursor-none"
+            onClick={() => setMobileNavOpen(false)}
+            aria-label="Close navigation"
+          />
+          <div className="relative z-10 m-6 border-2 border-[#222] bg-[#0a0a0a] p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="font-black text-xl">
+                MENU<span className="text-[#ff00ff]">.v2</span>
+              </div>
+              <button
+                type="button"
+                className="border-2 border-white px-3 py-2 font-bold hover:bg-white hover:text-black transition-colors"
+                onClick={() => setMobileNavOpen(false)}
+              >
+                CLOSE
+              </button>
+            </div>
+            <div className="flex flex-col gap-4 font-mono text-sm">
+              {[
+                { label: "HOME", id: "home" },
+                { label: "WORK", id: "work" },
+                { label: "THOUGHTS", id: "thoughts" },
+                { label: "CONTACT", id: "contact" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="text-left border-b border-[#222] pb-3 hover:text-[#ccff00] transition-colors"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    scrollToId(item.id);
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+              <a
+                href={X_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="text-left border-b border-[#222] pb-3 hover:text-[#00ffff] transition-colors"
+              >
+                X / @{X_HANDLE}
+              </a>
+              <a
+                href={EMAIL_URL}
+                className="text-left border-b border-[#222] pb-3 hover:text-[#ff00ff] transition-colors"
+              >
+                EMAIL / {EMAIL}
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Hero Section */}
       <header id="home" className="relative min-h-screen flex flex-col justify-center px-6 pt-20 overflow-hidden">
@@ -272,6 +407,8 @@ const App = () => {
             <div className="flex gap-4">
               <button 
                 className="bg-[#ccff00] text-black font-bold px-8 py-4 text-lg hover:bg-[#ff00ff] hover:text-white transition-colors neo-card"
+                type="button"
+                onClick={() => scrollToId('work')}
                 onMouseEnter={handleMouseEnter} 
                 onMouseLeave={handleMouseLeave}
               >
@@ -348,9 +485,13 @@ const App = () => {
              {/* Social Card */}
              <div className="col-span-1 md:col-span-1 bg-[#00ffff] text-black p-6 flex flex-col justify-between neo-card group"
                   onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-              <Twitter size={32} className="group-hover:rotate-12 transition-transform" />
+              <a href={X_URL} target="_blank" rel="noreferrer" className="inline-block">
+                <Twitter size={32} className="group-hover:rotate-12 transition-transform" />
+              </a>
               <div>
-                <div className="text-2xl font-black mb-1">@isCharles</div>
+                <a href={X_URL} target="_blank" rel="noreferrer" className="text-2xl font-black mb-1 inline-block hover:underline">
+                  @{X_HANDLE}
+                </a>
                 <div className="font-mono text-xs font-bold">FOLLOW UPDATES</div>
               </div>
             </div>
@@ -369,14 +510,22 @@ const App = () => {
             </div>
             
             {/* Location Card */}
-            <div className="col-span-1 md:col-span-2 bg-[#ff00ff] text-white p-8 flex items-center justify-center relative overflow-hidden group neo-card">
+            <a
+              href="https://www.bupt.edu.cn/"
+              target="_blank"
+              rel="noreferrer"
+              className="col-span-1 md:col-span-2 bg-[#ff00ff] text-white p-8 flex items-center justify-center relative overflow-hidden group neo-card"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              aria-label="Open BUPT official website"
+            >
                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&q=80&w=1000')] bg-cover bg-center mix-blend-multiply opacity-50 grayscale group-hover:grayscale-0 transition-all duration-500"></div>
                <div className="relative z-10 text-center">
                  <Globe size={48} className="mx-auto mb-2" />
                  <h3 className="text-2xl font-black">BEIJING, CN</h3>
                  <p className="font-mono text-sm">BUPT, HAIDIAN • {new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</p>
                </div>
-            </div>
+            </a>
 
           </div>
         </section>
@@ -392,10 +541,11 @@ const App = () => {
 
           <div className="space-y-8">
             {blogs.map((blog) => (
-              <div 
-                key={blog.id} 
-                className="group relative block bg-[#0a0a0a] border-2 border-[#222] hover:border-[#ccff00] p-8 transition-all duration-300 neo-card"
-                onMouseEnter={handleMouseEnter} 
+              <a
+                key={blog.id}
+                className="group relative block w-full text-left bg-[#0a0a0a] border-2 border-[#222] hover:border-[#ccff00] p-8 transition-all duration-300 neo-card"
+                href={getBlogPath(blog)}
+                onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
@@ -412,7 +562,7 @@ const App = () => {
                 <div className="flex gap-4 font-mono text-xs text-gray-600">
                   {blog.tags.map(tag => <span key={tag}>{tag}</span>)}
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </section>
@@ -444,9 +594,11 @@ const App = () => {
                   <span className="text-xs font-mono text-gray-500">{project.tech}</span>
                 </div>
                 
-                <button 
+                <button
+                  type="button"
                   className={`w-full py-3 font-bold text-black text-lg uppercase transition-all hover:tracking-widest`}
                   style={{ backgroundColor: project.color.replace('border-', '').replace('text-', '').replace('-400', '') === 'lime' ? '#ccff00' : '#00ffff' }}
+                  onClick={() => setActiveProject(project)}
                   onMouseEnter={handleMouseEnter} 
                   onMouseLeave={handleMouseLeave}
                 >
@@ -469,7 +621,7 @@ const App = () => {
           </p>
           
           <a 
-            href="mailto:hello@example.com"
+            href={EMAIL_URL}
             className="inline-block bg-white text-black font-black text-2xl px-12 py-6 neo-card hover:bg-[#ccff00] transition-colors"
             onMouseEnter={handleMouseEnter} 
             onMouseLeave={handleMouseLeave}
@@ -481,8 +633,12 @@ const App = () => {
              <a href="https://github.com/isCharles" target="_blank" rel="noreferrer">
                <Github size={32} className="hover:text-[#ccff00] cursor-pointer transition-colors" />
              </a>
-             <Twitter size={32} className="hover:text-[#00ffff] cursor-pointer transition-colors" />
-             <Mail size={32} className="hover:text-[#ff00ff] cursor-pointer transition-colors" />
+             <a href={X_URL} target="_blank" rel="noreferrer" aria-label={`X / @${X_HANDLE}`}>
+               <Twitter size={32} className="hover:text-[#00ffff] cursor-pointer transition-colors" />
+             </a>
+             <a href={EMAIL_URL} aria-label={`Email ${EMAIL}`}>
+               <Mail size={32} className="hover:text-[#ff00ff] cursor-pointer transition-colors" />
+             </a>
           </div>
         </section>
 
@@ -508,6 +664,51 @@ const App = () => {
           </div>
         </div>
       </footer>
+
+      {/* Project Modal */}
+      <Modal
+        open={!!activeProject}
+        title={activeProject?.title}
+        onClose={() => setActiveProject(null)}
+      >
+        {activeProject ? (
+          <div>
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <span className="bg-[#222] text-[#00ffff] text-xs px-2 py-1 font-mono font-bold">
+                {activeProject.status}
+              </span>
+              <span className="text-gray-500 text-sm font-mono">{activeProject.tech}</span>
+            </div>
+            <p className="font-mono text-gray-300 leading-relaxed mb-6">
+              {activeProject.desc}
+            </p>
+            <p className="font-mono text-gray-500 text-sm mb-8">
+              Demo / repo links are not configured yet. Add them to the project
+              data when ready, and this modal can show real buttons.
+            </p>
+            <div className="flex flex-col md:flex-row gap-4">
+              <button
+                type="button"
+                className="bg-[#ccff00] text-black font-bold px-6 py-3 hover:bg-[#ff00ff] hover:text-white transition-colors"
+                onClick={() => {
+                  setActiveProject(null);
+                  scrollToId("contact");
+                }}
+              >
+                CONTACT ME
+              </button>
+              <a
+                href="https://github.com/isCharles"
+                target="_blank"
+                rel="noreferrer"
+                className="border-2 border-white text-white font-bold px-6 py-3 hover:bg-white hover:text-black transition-colors inline-flex items-center justify-center"
+              >
+                SEE GITHUB
+              </a>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 };
