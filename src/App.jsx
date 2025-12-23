@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Code, Terminal, Cpu, Zap, Globe, 
   ArrowUpRight, Github, Twitter, Mail, 
   Layers, Box, Activity, Eye, Moon, Sun,
   MessageSquare, Hash, ExternalLink, Command
 } from 'lucide-react';
+import { blogs } from './data/blogs.js';
 
 // --- Custom CSS for Advanced Animations ---
 const customStyles = `
@@ -174,33 +175,6 @@ const App = () => {
     { name: 'Next.js', icon: <Zap size={20} />, color: 'text-yellow-400' },
     { name: 'Rust', icon: <Cpu size={20} />, color: 'text-orange-400' },
     { name: 'GraphQL', icon: <Globe size={20} />, color: 'text-purple-400' },
-  ];
-
-  const blogs = [
-    {
-      id: 1,
-      category: "ENGINEERING",
-      date: "NOV 19, 2025",
-      title: "React Server Components: A Love Story",
-      preview: "深入解析 RSC 架构，探讨为什么它是前端开发的未来，以及如何避免常见的陷阱。",
-      tags: ["#REACT", "#PERFORMANCE"]
-    },
-    {
-      id: 2,
-      category: "DESIGN",
-      date: "OCT 24, 2025",
-      title: "Chaos in UI: Neo-Brutalism Explained",
-      preview: "为什么‘丑’成为了新的‘美’？从设计心理学角度分析新野兽派的崛起。",
-      tags: ["#DESIGN", "#TRENDS"]
-    },
-    {
-      id: 3,
-      category: "ALGORITHMS",
-      date: "SEP 10, 2025",
-      title: "Optimizing Graph Traversal for Large Datasets",
-      preview: "在处理数百万节点时，传统的 DFS/BFS 已经不够用了。看看这些高级优化技巧。",
-      tags: ["#CS", "#MATH"]
-    }
   ];
 
   const projects = [
