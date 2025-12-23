@@ -23,3 +23,11 @@ This repo is configured to deploy `dist/` to GitHub Pages via GitHub Actions.
 - In GitHub repo settings: `Settings -> Pages -> Build and deployment` choose **GitHub Actions**.
 
 If you are using a **project pages** repo (URL like `https://<user>.github.io/<repo>/`), you must set Vite `base` to `"/<repo>/"`.
+
+## Beijing card background image
+
+To customize the Beijing location card background, add your preferred image to:
+
+- `public/images/beijing.jpg`
+
+Recommended: Temple of Heaven / Forbidden City / Beijing CBD skyline.

@@ -6,8 +6,6 @@ export function FloatingDock({
   onGoWork,
   onGoThoughts,
   onGoContact,
-  xUrl,
-  emailUrl,
   githubUrl,
   onHoverStart,
   onHoverEnd,
@@ -82,24 +80,6 @@ export function FloatingDock({
             >
               CONTACT
             </button>
-            <a
-              className="border border-[#222] bg-black/20 px-3 py-2 text-xs font-mono hover:border-[#00ffff] hover:text-[#00ffff] transition-colors text-left"
-              href={xUrl}
-              target="_blank"
-              rel="noreferrer"
-              onMouseEnter={onHoverStart}
-              onMouseLeave={onHoverEnd}
-            >
-              X
-            </a>
-            <a
-              className="border border-[#222] bg-black/20 px-3 py-2 text-xs font-mono hover:border-[#ff00ff] hover:text-[#ff00ff] transition-colors text-left"
-              href={emailUrl}
-              onMouseEnter={onHoverStart}
-              onMouseLeave={onHoverEnd}
-            >
-              EMAIL
-            </a>
             <a
               className="border border-[#222] bg-black/20 px-3 py-2 text-xs font-mono hover:border-white hover:text-white transition-colors text-left"
               href={githubUrl}

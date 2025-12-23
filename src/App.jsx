@@ -9,6 +9,7 @@ import { blogs } from './data/blogs.js';
 import { Modal } from './components/Modal.jsx';
 import { BlogPage } from './pages/BlogPage.jsx';
 import { FloatingDock } from './components/FloatingDock.jsx';
+import { siteConfig } from "./siteConfig.js";
 
 // --- Custom CSS for Advanced Animations ---
 const customStyles = `
@@ -142,10 +143,13 @@ const customStyles = `
 `;
 
 const App = () => {
+  const BRAND_NAME = siteConfig.brand.name;
+  const BRAND_ACCENT = siteConfig.brand.accent;
+  const X_URL = siteConfig.links.x;
+  const EMAIL_URL = siteConfig.links.email;
+  const GITHUB_URL = siteConfig.links.github;
   const X_HANDLE = "ischarlesyang";
-  const X_URL = `https://x.com/${X_HANDLE}`;
   const EMAIL = "ischarlesyang@gmail.com";
-  const EMAIL_URL = `mailto:${EMAIL}`;
   const COMMENTS_REPO = "isCharles/ischarles.github.io";
 
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
@@ -265,9 +269,6 @@ const App = () => {
     return (
       <BlogPage
         blog={activeBlog}
-        xUrl={X_URL}
-        xHandle={X_HANDLE}
-        emailUrl={EMAIL_URL}
         commentsRepo={COMMENTS_REPO}
       />
     );
@@ -294,7 +295,7 @@ const App = () => {
       <nav className="fixed top-0 w-full z-40 p-6 flex justify-between items-center mix-blend-difference">
         <div className="font-black text-2xl tracking-tighter flex items-center gap-2" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           <Command size={24} className="text-[#ccff00]" />
-          DEV_LOG<span className="text-[#ff00ff]">.v2</span>
+          {BRAND_NAME}<span className="text-[#ff00ff]">.{BRAND_ACCENT}</span>
         </div>
         <div className="hidden md:flex gap-8 font-mono text-sm">
           {['HOME', 'WORK', 'THOUGHTS', 'CONTACT'].map((item) => (
@@ -333,7 +334,7 @@ const App = () => {
           <div className="relative z-10 m-6 border-2 border-[#222] bg-[#0a0a0a] p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="font-black text-xl">
-                MENU<span className="text-[#ff00ff]">.v2</span>
+                MENU<span className="text-[#ff00ff]">.{BRAND_ACCENT}</span>
               </div>
               <button
                 type="button"
@@ -362,20 +363,16 @@ const App = () => {
                   {item.label}
                 </button>
               ))}
-              <a
-                href={X_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="text-left border-b border-[#222] pb-3 hover:text-[#00ffff] transition-colors"
-              >
-                X / @{X_HANDLE}
-              </a>
-              <a
-                href={EMAIL_URL}
+              <button
+                type="button"
                 className="text-left border-b border-[#222] pb-3 hover:text-[#ff00ff] transition-colors"
+                onClick={() => {
+                  setMobileNavOpen(false);
+                  scrollToId("contact");
+                }}
               >
-                EMAIL / {EMAIL}
-              </a>
+                CONTACT
+              </button>
             </div>
           </div>
         </div>
@@ -489,13 +486,11 @@ const App = () => {
              {/* Social Card */}
              <div className="col-span-1 md:col-span-1 bg-[#00ffff] text-black p-6 flex flex-col justify-between neo-card group"
                   onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-              <a href={X_URL} target="_blank" rel="noreferrer" className="inline-block">
+              <a href={X_URL} target="_blank" rel="noreferrer" className="inline-block" aria-label="Open X profile">
                 <Twitter size={32} className="group-hover:rotate-12 transition-transform" />
               </a>
               <div>
-                <a href={X_URL} target="_blank" rel="noreferrer" className="text-2xl font-black mb-1 inline-block hover:underline">
-                  @{X_HANDLE}
-                </a>
+                <div className="text-2xl font-black mb-1">@ischarlesyang</div>
                 <div className="font-mono text-xs font-bold">FOLLOW UPDATES</div>
               </div>
             </div>
@@ -523,13 +518,73 @@ const App = () => {
               onMouseLeave={handleMouseLeave}
               aria-label="Open BUPT official website"
             >
-               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&q=80&w=1000')] bg-cover bg-center mix-blend-multiply opacity-50 grayscale group-hover:grayscale-0 transition-all duration-500"></div>
+               <div
+                 className="absolute inset-0 bg-cover bg-center mix-blend-multiply opacity-55 grayscale group-hover:grayscale-0 transition-all duration-500"
+                 style={{
+                   backgroundImage: `url('${siteConfig.location.beijingImagePath}')`,
+                 }}
+               ></div>
                <div className="relative z-10 text-center">
                  <Globe size={48} className="mx-auto mb-2" />
                  <h3 className="text-2xl font-black">BEIJING, CN</h3>
                  <p className="font-mono text-sm">BUPT, HAIDIAN • {new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'})}</p>
                </div>
             </a>
+
+            {/* Latest Logs Card (fills the empty space to the right of location on desktop) */}
+            <div className="col-span-1 md:col-span-2 bg-[#111] border border-[#333] p-8 relative overflow-hidden group hover:border-[#00ffff] transition-colors">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+                <MessageSquare size={90} />
+              </div>
+              <div className="flex items-end justify-between mb-6">
+                <div>
+                  <h3 className="text-sm font-mono text-gray-500 mb-2 uppercase tracking-widest">
+                    Latest Logs
+                  </h3>
+                  <div className="text-2xl font-black">Fresh thoughts, hot commits.</div>
+                </div>
+                <button
+                  type="button"
+                  className="font-mono text-xs text-[#00ffff] hover:text-[#ccff00] transition-colors relative z-10"
+                  onClick={() => {
+                    // make it work even when hash doesn't change
+                    scrollToId("thoughts");
+                    window.location.hash = "#thoughts";
+                  }}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  VIEW ALL →
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {blogs.slice(0, 2).map((b) => (
+                  <a
+                    key={b.slug || b.id}
+                    href={getBlogPath(b)}
+                    className="block border border-[#222] bg-black/20 p-4 hover:border-[#00ffff] transition-colors"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="font-mono text-xs text-gray-500 mb-1">
+                          {b.date} • {b.category}
+                        </div>
+                        <div className="font-bold text-lg truncate">{b.title}</div>
+                      </div>
+                      <ArrowUpRight className="text-[#222] group-hover:text-[#00ffff] transition-colors" size={22} />
+                    </div>
+                    {b.preview ? (
+                      <div className="font-mono text-sm text-gray-400 mt-2 line-clamp-2">
+                        {b.preview}
+                      </div>
+                    ) : null}
+                  </a>
+                ))}
+              </div>
+            </div>
 
           </div>
         </section>
@@ -652,7 +707,9 @@ const App = () => {
       <footer className="border-t border-[#222] py-12 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-end">
           <div>
-             <div className="font-black text-2xl mb-2">DEV_LOG<span className="text-[#ff00ff]">.v2</span></div>
+             <div className="font-black text-2xl mb-2">
+               {BRAND_NAME}<span className="text-[#ff00ff]">.{BRAND_ACCENT}</span>
+             </div>
              <p className="text-gray-600 font-mono text-sm">
                &copy; 2025 Designed & Coded by Charles Yang.<br/>
                Powered by React & Tailwind.
@@ -675,9 +732,7 @@ const App = () => {
         onGoWork={() => scrollToId("work")}
         onGoThoughts={() => scrollToId("thoughts")}
         onGoContact={() => scrollToId("contact")}
-        xUrl={X_URL}
-        emailUrl={EMAIL_URL}
-        githubUrl="https://github.com/isCharles"
+        githubUrl={GITHUB_URL}
         onHoverStart={handleMouseEnter}
         onHoverEnd={handleMouseLeave}
       />
@@ -711,23 +766,13 @@ const App = () => {
                 </a>
               ) : null}
               <a
-                href={activeProject.repoUrl || "https://github.com/isCharles"}
+                href={activeProject.repoUrl || GITHUB_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="border-2 border-white text-white font-bold px-6 py-3 hover:bg-white hover:text-black transition-colors inline-flex items-center justify-center"
               >
                 VIEW REPO
               </a>
-              <button
-                type="button"
-                className="bg-[#ccff00] text-black font-bold px-6 py-3 hover:bg-[#ff00ff] hover:text-white transition-colors"
-                onClick={() => {
-                  setActiveProject(null);
-                  scrollToId("contact");
-                }}
-              >
-                CONTACT ME
-              </button>
             </div>
           </div>
         ) : null}

@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { GitHubComments } from "../components/GitHubComments.jsx";
 
-export function BlogPage({ blog, xUrl, xHandle, emailUrl, commentsRepo }) {
+export function BlogPage({ blog, commentsRepo }) {
   useEffect(() => {
     if (!blog) return;
     document.title = `Blog | ${blog.title}`;
@@ -37,19 +37,12 @@ export function BlogPage({ blog, xUrl, xHandle, emailUrl, commentsRepo }) {
         >
           <span className="text-[#ccff00]">&lt;</span> BACK
         </a>
-        <div className="flex items-center gap-4 font-mono text-xs text-gray-400">
-          <a
-            href={xUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="hover:text-[#00ffff] transition-colors"
-          >
-            X / @{xHandle}
-          </a>
-          <a href={emailUrl} className="hover:text-[#ff00ff] transition-colors">
-            EMAIL
-          </a>
-        </div>
+        <a
+          href="#contact"
+          className="font-mono text-xs text-gray-400 hover:text-[#00ffff] transition-colors"
+        >
+          CONTACT →
+        </a>
       </nav>
 
       <main className="max-w-3xl mx-auto px-6 pt-28 pb-24">
@@ -78,26 +71,16 @@ export function BlogPage({ blog, xUrl, xHandle, emailUrl, commentsRepo }) {
         </article>
 
         <div className="border-2 border-[#222] bg-[#0a0a0a] p-6 mb-16">
-          <div className="font-black text-2xl mb-2">Talk to me</div>
+          <div className="font-black text-2xl mb-2">Get in touch</div>
           <div className="font-mono text-gray-400 mb-6">
-            Short questions → X. Serious stuff → email.
+            If you want to reach me, use the Contact section on the homepage.
           </div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <a
-              href={xUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="border-2 border-white text-white font-bold px-6 py-3 hover:bg-white hover:text-black transition-colors inline-flex items-center justify-center"
-            >
-              DISCUSS ON X
-            </a>
-            <a
-              href={emailUrl}
-              className="bg-[#ccff00] text-black font-bold px-6 py-3 hover:bg-[#ff00ff] hover:text-white transition-colors inline-flex items-center justify-center"
-            >
-              EMAIL ME
-            </a>
-          </div>
+          <a
+            href="#contact"
+            className="bg-[#ccff00] text-black font-bold px-6 py-3 hover:bg-[#ff00ff] hover:text-white transition-colors inline-flex items-center justify-center"
+          >
+            GO TO CONTACT
+          </a>
         </div>
 
         <div className="border-t border-[#222] pt-10">
