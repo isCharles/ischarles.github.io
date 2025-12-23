@@ -22,14 +22,23 @@ const files = import.meta.glob("../content/blogs/*.md", {
 });
 
 function parseFrontmatter(raw) {
-  const text = String(raw || "");
-  if (!text.startsWith("---")) return { data: {}, content: text };
+  const original = String(raw || "");
+  // Tolerate:
+  // - UTF-8 BOM
+  // - UTF-16 files accidentally decoded as UTF-8 (embedded \u0000)
+  // - accidental leading whitespace/newlines before frontmatter
+  const withoutBom = original.replace(/^\uFEFF/, "");
+  // Avoid regex control char lint: strip NUL via split/join
+  const text = withoutBom.split("\u0000").join("");
+  const leading = text.match(/^\s*/)?.[0] ?? "";
+  const start = text.slice(leading.length);
+  if (!start.startsWith("---")) return { data: {}, content: text };
 
-  const match = text.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
-  if (!match) return { data: {}, content: text };
+  const match = start.match(/^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?/);
+  if (!match) return { data: {}, content: start };
 
   const yaml = match[1];
-  const content = text.slice(match[0].length);
+  const content = start.slice(match[0].length);
 
   const data = {};
   const lines = yaml.split(/\r?\n/);

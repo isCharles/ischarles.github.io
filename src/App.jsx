@@ -8,6 +8,7 @@ import {
 import { blogs } from './data/blogs.js';
 import { Modal } from './components/Modal.jsx';
 import { BlogPage } from './pages/BlogPage.jsx';
+import { FloatingDock } from './components/FloatingDock.jsx';
 
 // --- Custom CSS for Advanced Animations ---
 const customStyles = `
@@ -241,19 +242,22 @@ const App = () => {
   const projects = [
     {
       id: 1,
-      title: "SYNTH_WAVE_GENERATOR",
-      desc: "基于 Web Audio API 的模块化合成器，支持 MIDI 输入。",
-      tech: "Vue3 / WebAudio / Canvas",
-      status: "LIVE",
-      color: "border-lime-400"
+      title: "MiniAuth",
+      desc: "A minimal user authentication system built with FastAPI + SQLAlchemy + JWT, focused on core auth primitives (login, tokens, password hashing) without heavy framework magic.",
+      tech: "Python / FastAPI / SQLAlchemy / JWT",
+      status: "OPEN",
+      color: "border-lime-400",
+      repoUrl: "https://github.com/isCharles/MiniAuth",
     },
     {
       id: 2,
-      title: "GHOST_PROTOCOL_CLI",
-      desc: "用于自动化渗透测试的 Rust 命令行工具。",
-      tech: "Rust / Clap / Tokio",
-      status: "BETA",
-      color: "border-cyan-400"
+      title: "Pytorch2ONNX",
+      desc: "PyTorch 模型转 ONNX 指南与示例（配套站点），用于把训练产物对接推理部署链路。",
+      tech: "PyTorch / ONNX / Export Pipeline",
+      status: "LIVE",
+      color: "border-cyan-400",
+      repoUrl: "https://github.com/isCharles/Pytorch2ONNX",
+      demoUrl: "https://ischarles.github.io/Pytorch2ONNX/",
     }
   ];
 
@@ -665,6 +669,19 @@ const App = () => {
         </div>
       </footer>
 
+      {/* Bottom-right quick actions */}
+      <FloatingDock
+        onScrollTop={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        onGoWork={() => scrollToId("work")}
+        onGoThoughts={() => scrollToId("thoughts")}
+        onGoContact={() => scrollToId("contact")}
+        xUrl={X_URL}
+        emailUrl={EMAIL_URL}
+        githubUrl="https://github.com/isCharles"
+        onHoverStart={handleMouseEnter}
+        onHoverEnd={handleMouseLeave}
+      />
+
       {/* Project Modal */}
       <Modal
         open={!!activeProject}
@@ -682,11 +699,25 @@ const App = () => {
             <p className="font-mono text-gray-300 leading-relaxed mb-6">
               {activeProject.desc}
             </p>
-            <p className="font-mono text-gray-500 text-sm mb-8">
-              Demo / repo links are not configured yet. Add them to the project
-              data when ready, and this modal can show real buttons.
-            </p>
             <div className="flex flex-col md:flex-row gap-4">
+              {activeProject.demoUrl ? (
+                <a
+                  href={activeProject.demoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="bg-[#00ffff] text-black font-bold px-6 py-3 hover:bg-white transition-colors inline-flex items-center justify-center"
+                >
+                  OPEN DEMO
+                </a>
+              ) : null}
+              <a
+                href={activeProject.repoUrl || "https://github.com/isCharles"}
+                target="_blank"
+                rel="noreferrer"
+                className="border-2 border-white text-white font-bold px-6 py-3 hover:bg-white hover:text-black transition-colors inline-flex items-center justify-center"
+              >
+                VIEW REPO
+              </a>
               <button
                 type="button"
                 className="bg-[#ccff00] text-black font-bold px-6 py-3 hover:bg-[#ff00ff] hover:text-white transition-colors"
@@ -697,14 +728,6 @@ const App = () => {
               >
                 CONTACT ME
               </button>
-              <a
-                href="https://github.com/isCharles"
-                target="_blank"
-                rel="noreferrer"
-                className="border-2 border-white text-white font-bold px-6 py-3 hover:bg-white hover:text-black transition-colors inline-flex items-center justify-center"
-              >
-                SEE GITHUB
-              </a>
             </div>
           </div>
         ) : null}

@@ -73,7 +73,7 @@ export function BlogPage({ blog, xUrl, xHandle, emailUrl, commentsRepo }) {
           <p className="font-mono text-gray-400 leading-relaxed">{blog.preview}</p>
         </div>
 
-        <article className="mb-16 prose prose-invert max-w-none">
+        <article className="mb-16 markdown">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.body}</ReactMarkdown>
         </article>
 

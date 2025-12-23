@@ -1,5 +1,5 @@
 ---
-id: 4
+id: 6
 slug: nietzsche-morality
 category: THOUGHTS
 date: 2025-12-23

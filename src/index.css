@@ -6,3 +6,66 @@
 @source "../index.html";
 @source "./**/*.{js,jsx,ts,tsx}";
 
+/* Markdown typography (VS Code-like spacing, since Tailwind preflight removes default margins) */
+@layer components {
+  .markdown {
+    @apply font-mono text-gray-200 leading-relaxed;
+  }
+
+  .markdown :where(p) {
+    @apply my-4;
+  }
+
+  .markdown :where(h1) {
+    @apply mt-10 mb-6 text-4xl md:text-5xl font-black tracking-tighter;
+  }
+
+  .markdown :where(h2) {
+    @apply mt-10 mb-4 text-2xl md:text-3xl font-black;
+  }
+
+  .markdown :where(h3) {
+    @apply mt-8 mb-3 text-xl md:text-2xl font-bold;
+  }
+
+  .markdown :where(h4) {
+    @apply mt-6 mb-2 text-lg font-bold;
+  }
+
+  .markdown :where(ul) {
+    @apply my-4 list-disc pl-6;
+  }
+
+  .markdown :where(ol) {
+    @apply my-4 list-decimal pl-6;
+  }
+
+  .markdown :where(li) {
+    @apply my-1;
+  }
+
+  .markdown :where(blockquote) {
+    @apply my-6 border-l-2 border-[#ff00ff] pl-4 text-gray-300;
+  }
+
+  .markdown :where(hr) {
+    @apply my-10 border-t border-[#222];
+  }
+
+  .markdown :where(a) {
+    @apply underline decoration-[#00ffff]/60 underline-offset-4 text-[#00ffff] hover:text-[#ccff00] transition-colors;
+  }
+
+  .markdown :where(code) {
+    @apply text-[#ccff00];
+  }
+
+  .markdown :where(pre) {
+    @apply my-6 overflow-x-auto border border-[#222] bg-[#0a0a0a] p-4;
+  }
+
+  .markdown :where(pre code) {
+    @apply text-gray-200;
+  }
+}
+
