@@ -1,5 +1,3 @@
-import matter from "gray-matter";
-
 /**
  * Blog posts are stored as individual Markdown files under:
  *   src/content/blogs/*.md
@@ -22,6 +20,53 @@ const files = import.meta.glob("../content/blogs/*.md", {
   import: "default",
   eager: true,
 });
+
+function parseFrontmatter(raw) {
+  const text = String(raw || "");
+  if (!text.startsWith("---")) return { data: {}, content: text };
+
+  const match = text.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+  if (!match) return { data: {}, content: text };
+
+  const yaml = match[1];
+  const content = text.slice(match[0].length);
+
+  const data = {};
+  const lines = yaml.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line || /^\s*#/.test(line)) continue;
+
+    const kv = line.match(/^\s*([A-Za-z0-9_-]+)\s*:\s*(.*)\s*$/);
+    if (!kv) continue;
+
+    const key = kv[1];
+    const rest = kv[2] ?? "";
+
+    // YAML list (we only need tags: - X - Y)
+    if (rest === "") {
+      const list = [];
+      while (i + 1 < lines.length) {
+        const next = lines[i + 1];
+        const m = next.match(/^\s*-\s*(.+?)\s*$/);
+        if (!m) break;
+        list.push(m[1]);
+        i++;
+      }
+      data[key] = list;
+      continue;
+    }
+
+    let value = rest;
+    // strip surrounding quotes
+    value = value.replace(/^["'](.*)["']$/, "$1").trim();
+    // parse number-ish
+    if (/^\d+$/.test(value)) data[key] = Number(value);
+    else data[key] = value;
+  }
+
+  return { data, content };
+}
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -51,7 +96,7 @@ function normalizeTags(tags) {
 
 export const blogs = Object.entries(files)
   .map(([path, raw]) => {
-    const { data, content } = matter(raw);
+    const { data, content } = parseFrontmatter(raw);
     const id = Number(data.id);
     const slug = data.slug || getFilenameSlug(path);
     const dateIso = data.date;
