@@ -1,3 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 (PostCSS plugin) setup */
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* Explicitly declare scan sources for Tailwind v4 (avoids “missing utilities” issues) */
+@source "../index.html";
+@source "./**/*.{js,jsx,ts,tsx}";
+
