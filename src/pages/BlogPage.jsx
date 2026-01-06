@@ -67,35 +67,8 @@ export function BlogPage({ blog, commentsRepo }) {
         </div>
 
         <article className="mb-16 markdown">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              img: (props) => (
-                <img
-                  {...props}
-                  className="my-6 max-w-full mx-auto border border-[#222] rounded-sm"
-                  loading="lazy"
-                />
-              ),
-            }}
-          >
-            {blog.body}
-          </ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{blog.body}</ReactMarkdown>
         </article>
-
-        {blog.slug === "mysql-windows-port-ghost" && (
-          <figure className="mb-16">
-            <img
-              src="/images/netstat-mysql.png"
-              alt="netstat 查看 3306 端口占用情况"
-              className="my-6 max-w-full mx-auto border border-[#222] rounded-sm"
-              loading="lazy"
-            />
-            <figcaption className="mt-2 text-center text-sm text-gray-500 font-mono">
-              netstat 查看 3306 端口被 mysqld 占用的截图
-            </figcaption>
-          </figure>
-        )}
 
         <div className="border-2 border-[#222] bg-[#0a0a0a] p-6 mb-16">
           <div className="font-black text-2xl mb-2">Get in touch</div>
