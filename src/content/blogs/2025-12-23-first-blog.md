@@ -1,5 +1,5 @@
 ---
-id: 7
+id: 1
 slug: first-blog
 category: THOUGHTS
 date: 2025-12-23
