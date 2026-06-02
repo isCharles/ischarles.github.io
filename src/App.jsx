@@ -36,6 +36,14 @@ const customStyles = `
     font-family: 'JetBrains Mono', monospace;
   }
 
+  .signal-grid {
+    background-image:
+      linear-gradient(rgba(204, 255, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(204, 255, 0, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(to bottom, black, transparent 88%);
+  }
+
   /* Custom Cursor */
   .custom-cursor {
     width: 20px;
@@ -307,6 +315,19 @@ const App = () => {
     }
   ];
 
+  const heroMetrics = [
+    { label: "BASE", value: "BEIJING / CN" },
+    { label: "FOCUS", value: "SYSTEMS + INTERFACES" },
+    { label: "LOGS", value: String(blogs.length).padStart(2, "0") },
+  ];
+
+  const marqueeItems = [
+    "SYSTEMS THINKING",
+    "EXPRESSIVE INTERFACES",
+    "BUILD / BREAK / LEARN",
+    "NOTES FROM THE FIELD",
+  ];
+
   if (route.name === "blog") {
     return (
       <BlogPage
@@ -416,6 +437,7 @@ const App = () => {
       {/* Hero Section */}
       <header id="home" className="relative min-h-screen flex flex-col justify-center px-6 pt-20 overflow-hidden">
         {/* Decorative Grids */}
+        <div className="signal-grid absolute inset-0 opacity-60 pointer-events-none"></div>
         <div className="absolute top-0 right-0 w-1/2 h-full border-l border-[#222] opacity-50 hidden lg:block"></div>
         <div className="absolute bottom-20 left-20 w-40 h-40 border border-[#333] rounded-full animate-spin-slow hidden lg:block"></div>
 
@@ -427,6 +449,7 @@ const App = () => {
           
           <h1
             className="text-6xl md:text-9xl font-black leading-none tracking-tighter mb-8"
+            aria-label="Creative engineer"
             onMouseEnter={handleMouseEnter} 
             onMouseLeave={handleMouseLeave}
           >
@@ -442,7 +465,7 @@ const App = () => {
           
           <div className="flex flex-col md:flex-row gap-8 md:items-end justify-between">
             <p className="font-mono text-gray-400 max-w-md leading-relaxed border-l-2 border-[#ff00ff] pl-4">
-              Building digital experiences that merge <span className="text-white">clear systems thinking</span> with <span className="text-white">expressive interfaces</span>. Exploring the space where product craft meets reliable engineering.
+              Building digital experiences that merge <span className="text-white">clear systems thinking</span> with <span className="text-white">expressive interfaces</span>. I care about the details that make software feel considered.
             </p>
             
             <div className="flex gap-4">
@@ -467,6 +490,15 @@ const App = () => {
               </a>
             </div>
           </div>
+
+          <div className="mt-16 grid max-w-3xl grid-cols-1 border-y border-[#333] sm:grid-cols-3">
+            {heroMetrics.map((metric) => (
+              <div key={metric.label} className="border-b border-[#333] px-4 py-3 sm:border-b-0 sm:border-r last:border-0">
+                <div className="font-mono text-[10px] tracking-[0.3em] text-gray-600">{metric.label}</div>
+                <div className="mt-1 font-mono text-xs text-[#ccff00]">{metric.value}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Abstract shapes */}
@@ -478,10 +510,9 @@ const App = () => {
       {/* Infinite Marquee */}
       <div className="bg-[#ccff00] text-black font-black py-4 border-y-4 border-black marquee-container transform -rotate-1 scale-105 z-20">
         <div className="marquee-content flex gap-12 text-4xl md:text-6xl uppercase italic">
-          <span>React • Vue • Angular • Svelte • Node • Python • Go • Rust •</span>
-          <span>React • Vue • Angular • Svelte • Node • Python • Go • Rust •</span>
-          <span>React • Vue • Angular • Svelte • Node • Python • Go • Rust •</span>
-          <span>React • Vue • Angular • Svelte • Node • Python • Go • Rust •</span>
+          {[...marqueeItems, ...marqueeItems].map((item, index) => (
+            <span key={`${item}-${index}`}>{item} •</span>
+          ))}
         </div>
       </div>
 
@@ -505,7 +536,7 @@ const App = () => {
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-200">About Me</h3>
               <p className="text-gray-400 font-mono leading-relaxed mb-6">
-                I am Charles Yang (杨志), a full-stack developer based in Beijing (BUPT). I don't just write code; I craft resilient systems and immersive interfaces. When not debugging, I'm exploring generative art or brewing dark roast coffee.
+                I am Charles Yang (杨志), a full-stack developer based in Beijing. I enjoy turning fuzzy ideas into resilient systems and interfaces with a point of view. This site is my public notebook: shipped work, debugging trails, and thoughts still taking shape.
               </p>
               <div className="flex gap-2 mt-auto">
                 <span className="bg-[#222] text-xs px-3 py-1 font-mono rounded-full text-[#ccff00]">Strategy</span>
@@ -518,7 +549,7 @@ const App = () => {
                  onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
               <Eye size={32} />
               <div>
-                <div className="text-5xl font-black mb-1">02</div>
+                <div className="text-5xl font-black mb-1">{String(projects.length).padStart(2, "0")}</div>
                 <div className="font-mono text-sm font-bold">FEATURED PROJECTS</div>
               </div>
             </div>
@@ -715,9 +746,9 @@ const App = () => {
             <span className="text-[20vw] font-black stroke-text-thick text-[#111]">HELLO</span>
           </div>
           
-          <h2 className="text-5xl md:text-7xl font-black mb-8 relative z-10">Let's Build The Future</h2>
+          <h2 className="text-5xl md:text-7xl font-black mb-8 relative z-10">Make Something With A Pulse</h2>
           <p className="text-xl font-mono text-gray-400 mb-12 max-w-lg mx-auto">
-            Have a crazy idea? I'm currently open to freelance projects and open-source collaborations.
+            Have a sharp problem, an unusual idea, or an open-source project worth pushing forward? My inbox is open.
           </p>
           
           <a 
@@ -765,7 +796,11 @@ const App = () => {
             </div>
           </div>
         </div>
-        <div className="mt-12 border-y-4 border-black">
+        <div className="mx-auto mt-12 flex max-w-7xl items-center justify-between border-x border-t border-[#222] px-4 py-3 font-mono text-[10px] tracking-[0.24em] text-gray-500">
+          <span>04 / INTERACTIVE SIGN-OFF</span>
+          <span className="text-[#ccff00]">MOVE POINTER TO DISTORT</span>
+        </div>
+        <div className="border-y-4 border-black">
           <DistortedWordmark text={BRAND_NAME} />
         </div>
       </footer>
