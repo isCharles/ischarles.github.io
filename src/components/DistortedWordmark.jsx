@@ -122,14 +122,16 @@ export function DistortedWordmark({ text = "YANG" }) {
         const centerX = tile.left + tile.width / 2;
         const centerY = tile.top + tile.height / 2;
         const distance = Math.hypot((centerX - pointer.x) / radiusX, (centerY - pointer.y) / radiusY);
-        if (distance >= 1) return;
+        if (distance >= 1) {
+          tile.targetX = 0;
+          tile.targetY = 0;
+          return;
+        }
 
         const strength = (1 - distance) ** 1.7;
         const random = seededOffset(index);
-        tile.targetX += (random * width * 0.12 + velocityX * 1.8) * strength;
-        tile.targetY += (random * 5 + velocityY * 0.28) * strength;
-        tile.targetX = Math.max(-width * 0.14, Math.min(width * 0.14, tile.targetX));
-        tile.targetY = Math.max(-8, Math.min(8, tile.targetY));
+        tile.targetX = (random * width * 0.12 + velocityX * 1.8) * strength;
+        tile.targetY = (random * 5 + velocityY * 0.28) * strength;
       });
 
       lastPointer = pointer;
