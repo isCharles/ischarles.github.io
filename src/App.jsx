@@ -14,7 +14,7 @@ import { siteConfig } from "./siteConfig.js";
 
 // --- Custom CSS for Advanced Animations ---
 const customStyles = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
 
   :root {
     --color-bg: #050505;

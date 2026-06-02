@@ -35,8 +35,9 @@ export function DistortedWordmark({ text = "YANG" }) {
       sourceCtx.fillStyle = FOREGROUND;
       sourceCtx.textAlign = "center";
       sourceCtx.textBaseline = "middle";
-      sourceCtx.font = `900 ${Math.round(height * 1.02)}px Inter, Arial Black, sans-serif`;
-      sourceCtx.fillText(text, width / 2, height * 0.54, width * 0.98);
+      sourceCtx.font = `800 ${Math.round(height * 1.1)}px Syne, Inter, sans-serif`;
+      sourceCtx.letterSpacing = "-0.07em";
+      sourceCtx.fillText(text, width / 2, height * 0.55, width * 0.99);
     };
 
     const draw = () => {
@@ -146,6 +147,7 @@ export function DistortedWordmark({ text = "YANG" }) {
     resizeObserver.observe(canvas);
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerleave", onPointerLeave);
+    document.fonts.load("800 120px Syne").then(resize);
 
     return () => {
       cancelAnimationFrame(frameId);
