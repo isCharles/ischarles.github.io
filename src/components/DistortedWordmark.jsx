@@ -3,10 +3,8 @@ import React, { useEffect, useRef } from "react";
 const BACKGROUND = "#ccff00";
 const FOREGROUND = "#050505";
 
-function seededOffset(index, time) {
-  const wave = Math.sin(index * 12.9898 + time * 0.018);
-  const jitter = Math.sin(index * 78.233 + time * 0.031);
-  return wave * 0.62 + jitter * 0.38;
+function seededOffset(index) {
+  return Math.sin(index * 12.9898) * 0.62 + Math.sin(index * 78.233) * 0.38;
 }
 
 export function DistortedWordmark({ text = "YANG" }) {
@@ -21,9 +19,9 @@ export function DistortedWordmark({ text = "YANG" }) {
     const sourceCtx = source.getContext("2d");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let frameId;
-    let intensity = 0;
-    let targetIntensity = 0;
-    let pointerY = 0;
+    let tiles = [];
+    let lastPointer = null;
+    let shouldReset = false;
     let width = 0;
     let height = 0;
     let dpr = 1;
@@ -37,46 +35,47 @@ export function DistortedWordmark({ text = "YANG" }) {
       sourceCtx.fillStyle = FOREGROUND;
       sourceCtx.textAlign = "center";
       sourceCtx.textBaseline = "middle";
-      sourceCtx.font = `900 ${Math.round(height * 0.92)}px Inter, Arial Black, sans-serif`;
-      sourceCtx.fillText(text, width / 2, height * 0.54, width * 0.94);
+      sourceCtx.font = `900 ${Math.round(height * 1.02)}px Inter, Arial Black, sans-serif`;
+      sourceCtx.fillText(text, width / 2, height * 0.54, width * 0.98);
     };
 
-    const draw = (time = 0) => {
-      intensity += (targetIntensity - intensity) * 0.13;
-      if (targetIntensity === 0 && intensity < 0.005) intensity = 0;
-
+    const draw = () => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = BACKGROUND;
       ctx.fillRect(0, 0, width, height);
 
-      const sliceHeight = Math.max(4, Math.round(height / 22));
-      for (let y = 0, index = 0; y < height; y += sliceHeight, index += 1) {
-        const center = y + sliceHeight / 2;
-        const proximity = 1 - Math.min(Math.abs(center - pointerY) / height, 1);
-        const spread = 0.42 + proximity * 0.9;
-        const offset = seededOffset(index, time) * width * 0.16 * intensity * spread;
-        const verticalOffset = Math.sin(index * 4.2 + time * 0.012) * 2 * intensity;
+      let moving = false;
+      tiles.forEach((tile) => {
+        if (shouldReset) {
+          tile.targetX = 0;
+          tile.targetY = 0;
+        }
+        tile.x += (tile.targetX - tile.x) * 0.16;
+        tile.y += (tile.targetY - tile.y) * 0.16;
+        if (Math.abs(tile.targetX - tile.x) > 0.08 || Math.abs(tile.targetY - tile.y) > 0.08) {
+          moving = true;
+        }
         ctx.drawImage(
           source,
-          0,
-          y * dpr,
-          source.width,
-          sliceHeight * dpr,
-          offset,
-          y + verticalOffset,
-          width,
-          sliceHeight,
+          tile.left * dpr,
+          tile.top * dpr,
+          tile.width * dpr,
+          tile.height * dpr,
+          tile.left + tile.x,
+          tile.top + tile.y,
+          tile.width,
+          tile.height,
         );
-      }
+      });
 
-      if (intensity > 0 || targetIntensity > 0) {
+      if (moving) {
         frameId = requestAnimationFrame(draw);
       }
     };
 
     const renderStatic = () => {
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.drawImage(source, 0, 0, source.width, source.height, 0, 0, width, height);
+      cancelAnimationFrame(frameId);
+      frameId = requestAnimationFrame(draw);
     };
 
     const resize = () => {
@@ -84,27 +83,63 @@ export function DistortedWordmark({ text = "YANG" }) {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = rect.width;
       height = rect.height;
-      pointerY = height / 2;
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       drawSource();
+      const columns = Math.max(18, Math.round(width / 70));
+      const rows = 20;
+      const tileWidth = width / columns;
+      const tileHeight = height / rows;
+      tiles = Array.from({ length: columns * rows }, (_, index) => {
+        const column = index % columns;
+        const row = Math.floor(index / columns);
+        return {
+          left: column * tileWidth,
+          top: row * tileHeight,
+          width: tileWidth + 1,
+          height: tileHeight + 1,
+          x: 0,
+          y: 0,
+          targetX: 0,
+          targetY: 0,
+        };
+      });
       renderStatic();
     };
 
     const onPointerMove = (event) => {
       if (reduceMotion.matches) return;
       const rect = canvas.getBoundingClientRect();
-      pointerY = event.clientY - rect.top;
-      targetIntensity = 1;
-      cancelAnimationFrame(frameId);
-      frameId = requestAnimationFrame(draw);
+      const pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      const velocityX = lastPointer ? pointer.x - lastPointer.x : 0;
+      const velocityY = lastPointer ? pointer.y - lastPointer.y : 0;
+      const radiusX = Math.max(90, width * 0.13);
+      const radiusY = Math.max(46, height * 0.42);
+
+      shouldReset = false;
+      tiles.forEach((tile, index) => {
+        const centerX = tile.left + tile.width / 2;
+        const centerY = tile.top + tile.height / 2;
+        const distance = Math.hypot((centerX - pointer.x) / radiusX, (centerY - pointer.y) / radiusY);
+        if (distance >= 1) return;
+
+        const strength = (1 - distance) ** 1.7;
+        const random = seededOffset(index);
+        tile.targetX += (random * width * 0.12 + velocityX * 1.8) * strength;
+        tile.targetY += (random * 5 + velocityY * 0.28) * strength;
+        tile.targetX = Math.max(-width * 0.14, Math.min(width * 0.14, tile.targetX));
+        tile.targetY = Math.max(-8, Math.min(8, tile.targetY));
+      });
+
+      lastPointer = pointer;
+      renderStatic();
     };
 
     const onPointerLeave = () => {
       if (reduceMotion.matches) return;
-      targetIntensity = 0;
-      cancelAnimationFrame(frameId);
-      frameId = requestAnimationFrame(draw);
+      lastPointer = null;
+      shouldReset = true;
+      renderStatic();
     };
 
     const resizeObserver = new ResizeObserver(resize);
@@ -123,7 +158,7 @@ export function DistortedWordmark({ text = "YANG" }) {
   return (
     <canvas
       ref={canvasRef}
-      className="block h-28 w-full md:h-44"
+      className="block h-40 w-full md:h-64 lg:h-72"
       role="img"
       aria-label={`${text} interactive wordmark`}
     />
