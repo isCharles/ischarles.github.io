@@ -29,7 +29,6 @@ const customStyles = `
     color: var(--color-text);
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
-    cursor: none; /* Custom cursor */
   }
 
   .font-mono {
@@ -140,6 +139,38 @@ const customStyles = `
     opacity: 0.05;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
+
+  :focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 4px;
+  }
+
+  @media (pointer: fine) {
+    body, a, button {
+      cursor: none;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .custom-cursor {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    .glitch-text::before,
+    .glitch-text::after,
+    .grain {
+      display: none;
+    }
+  }
 `;
 
 const App = () => {
@@ -185,7 +216,7 @@ const App = () => {
     const handleScroll = () => {
       const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
       const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrolled = (winScroll / height) * 100;
+      const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
       setScrolled(scrolled);
     };
     window.addEventListener('scroll', handleScroll);
@@ -201,6 +232,12 @@ const App = () => {
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
+
+  useEffect(() => {
+    if (route.name === "home") {
+      document.title = siteConfig.meta.title;
+    }
+  }, [route.name]);
 
   const handleMouseEnter = () => setIsHovering(true);
   const handleMouseLeave = () => setIsHovering(false);
@@ -283,7 +320,8 @@ const App = () => {
       <div className="grain"></div>
 
       {/* Custom Cursor */}
-      <div 
+      <div
+        aria-hidden="true"
         className={`custom-cursor ${isHovering ? 'hovered' : ''}`}
         style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
       />
@@ -293,10 +331,10 @@ const App = () => {
 
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-40 p-6 flex justify-between items-center mix-blend-difference">
-        <div className="font-black text-2xl tracking-tighter flex items-center gap-2" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <a href="#home" className="font-black text-2xl tracking-tighter flex items-center gap-2" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           <Command size={24} className="text-[#ccff00]" />
           {BRAND_NAME}<span className="text-[#ff00ff]">.{BRAND_ACCENT}</span>
-        </div>
+        </a>
         <div className="hidden md:flex gap-8 font-mono text-sm">
           {['HOME', 'WORK', 'THOUGHTS', 'CONTACT'].map((item) => (
             <a 
@@ -314,6 +352,8 @@ const App = () => {
         <button 
           className="md:hidden text-[#ccff00]"
           type="button"
+          aria-label="Open navigation"
+          aria-expanded={mobileNavOpen}
           onClick={() => setMobileNavOpen((v) => !v)}
           onMouseEnter={handleMouseEnter} 
           onMouseLeave={handleMouseLeave}
@@ -363,16 +403,6 @@ const App = () => {
                   {item.label}
                 </button>
               ))}
-              <button
-                type="button"
-                className="text-left border-b border-[#222] pb-3 hover:text-[#ff00ff] transition-colors"
-                onClick={() => {
-                  setMobileNavOpen(false);
-                  scrollToId("contact");
-                }}
-              >
-                CONTACT
-              </button>
             </div>
           </div>
         </div>
@@ -387,7 +417,7 @@ const App = () => {
         <div className="max-w-7xl mx-auto w-full relative z-10">
           <div className="mb-4 flex items-center gap-4 text-[#ccff00] font-mono text-sm">
             <span className="w-3 h-3 bg-[#ccff00] animate-pulse"></span>
-            AVAILABLE FOR HIRE
+            OPEN TO COLLABORATE
           </div>
           
           <h1 
@@ -402,7 +432,7 @@ const App = () => {
           
           <div className="flex flex-col md:flex-row gap-8 md:items-end justify-between">
             <p className="font-mono text-gray-400 max-w-md leading-relaxed border-l-2 border-[#ff00ff] pl-4">
-              Building digital experiences that merge <span className="text-white">artistic chaos</span> with <span className="text-white">code precision</span>. Currently obsessed with WebGL and Micro-frontends.
+              Building digital experiences that merge <span className="text-white">clear systems thinking</span> with <span className="text-white">expressive interfaces</span>. Exploring the space where product craft meets reliable engineering.
             </p>
             
             <div className="flex gap-4">
@@ -478,8 +508,8 @@ const App = () => {
                  onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
               <Eye size={32} />
               <div>
-                <div className="text-5xl font-black mb-1">42</div>
-                <div className="font-mono text-sm font-bold">PROJECTS SHIPPED</div>
+                <div className="text-5xl font-black mb-1">02</div>
+                <div className="font-mono text-sm font-bold">FEATURED PROJECTS</div>
               </div>
             </div>
 
@@ -658,6 +688,7 @@ const App = () => {
                   className={`w-full py-3 font-bold text-black text-lg uppercase transition-all hover:tracking-widest`}
                   style={{ backgroundColor: project.color.replace('border-', '').replace('text-', '').replace('-400', '') === 'lime' ? '#ccff00' : '#00ffff' }}
                   onClick={() => setActiveProject(project)}
+                  aria-label={`Open ${project.title} project details`}
                   onMouseEnter={handleMouseEnter} 
                   onMouseLeave={handleMouseLeave}
                 >
@@ -711,7 +742,7 @@ const App = () => {
                {BRAND_NAME}<span className="text-[#ff00ff]">.{BRAND_ACCENT}</span>
              </div>
              <p className="text-gray-600 font-mono text-sm">
-               &copy; 2025 Designed & Coded by Charles Yang.<br/>
+               &copy; {new Date().getFullYear()} Designed & Coded by Charles Yang.<br/>
                Powered by React & Tailwind.
              </p>
           </div>
