@@ -81,6 +81,10 @@ const customStyles = `
     clip: rect(85px, 550px, 140px, 0);
     animation: glitch-anim 2.5s infinite linear alternate-reverse;
   }
+  .glitch-text-outline::before, .glitch-text-outline::after {
+    color: #ffffff;
+    -webkit-text-stroke: 0;
+  }
 
   @keyframes glitch-anim {
     0% { clip: rect(14px, 9999px, 127px, 0); }
@@ -420,14 +424,19 @@ const App = () => {
             OPEN TO COLLABORATE
           </div>
           
-          <h1 
-            className="glitch-text text-6xl md:text-9xl font-black leading-none tracking-tighter mb-8"
-            data-text="CREATIVE ENGINEER"
+          <h1
+            className="text-6xl md:text-9xl font-black leading-none tracking-tighter mb-8"
             onMouseEnter={handleMouseEnter} 
             onMouseLeave={handleMouseLeave}
           >
-            CREATIVE<br/>
-            <span className="text-transparent stroke-text" style={{ WebkitTextStroke: '2px #fff' }}>ENGINEER</span>
+            <span className="glitch-text block" data-text="CREATIVE">CREATIVE</span>
+            <span
+              className="glitch-text glitch-text-outline block text-transparent stroke-text"
+              data-text="ENGINEER"
+              style={{ WebkitTextStroke: '2px #fff' }}
+            >
+              ENGINEER
+            </span>
           </h1>
           
           <div className="flex flex-col md:flex-row gap-8 md:items-end justify-between">
