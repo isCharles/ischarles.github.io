@@ -9,6 +9,7 @@ import { blogs } from './data/blogs.js';
 import { Modal } from './components/Modal.jsx';
 import { BlogPage } from './pages/BlogPage.jsx';
 import { FloatingDock } from './components/FloatingDock.jsx';
+import { DistortedWordmark } from './components/DistortedWordmark.jsx';
 import { siteConfig } from "./siteConfig.js";
 
 // --- Custom CSS for Advanced Animations ---
@@ -763,6 +764,9 @@ const App = () => {
               ))}
             </div>
           </div>
+        </div>
+        <div className="mt-12 border-y-4 border-black">
+          <DistortedWordmark text={BRAND_NAME} />
         </div>
       </footer>
 
