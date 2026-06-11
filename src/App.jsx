@@ -296,6 +296,16 @@ const App = () => {
   const projects = [
     {
       id: 1,
+      title: "AI Interview Guide",
+      desc: "A private AI interview workspace integrating resume analysis, mock interviews, model provider settings, PostgreSQL/pgvector, Redis, MinIO, and a Docker-based deployment path.",
+      tech: "Spring Boot / React / PostgreSQL / Redis / MinIO",
+      status: "PRIVATE DEMO",
+      color: "border-pink-400",
+      repoUrl: "https://github.com/Snailclimb/interview-guide",
+      demoUrl: "https://interview.ischarlesyang.com",
+    },
+    {
+      id: 2,
       title: "MiniAuth",
       desc: "A minimal user authentication system built with FastAPI + SQLAlchemy + JWT, focused on core auth primitives (login, tokens, password hashing) without heavy framework magic.",
       tech: "Python / FastAPI / SQLAlchemy / JWT",
@@ -304,7 +314,7 @@ const App = () => {
       repoUrl: "https://github.com/isCharles/MiniAuth",
     },
     {
-      id: 2,
+      id: 3,
       title: "Pytorch2ONNX",
       desc: "PyTorch 模型转 ONNX 指南与示例（配套站点），用于把训练产物对接推理部署链路。",
       tech: "PyTorch / ONNX / Export Pipeline",
