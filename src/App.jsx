@@ -519,11 +519,6 @@ const App = () => {
             ))}
           </div>
         </div>
-
-        {/* Abstract shapes */}
-        <div className="absolute right-10 bottom-40 md:right-40 opacity-20 animate-bounce">
-          <Cpu size={200} strokeWidth={0.5} />
-        </div>
       </header>
 
       {/* Infinite Marquee */}
