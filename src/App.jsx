@@ -285,12 +285,16 @@ const App = () => {
 
   // --- Data Mocks ---
   const techStack = [
-    { name: 'React', icon: <Code size={20} />, color: 'text-cyan-400' },
-    { name: 'Node.js', icon: <Terminal size={20} />, color: 'text-green-400' },
-    { name: 'Three.js', icon: <Box size={20} />, color: 'text-pink-400' },
-    { name: 'Next.js', icon: <Zap size={20} />, color: 'text-yellow-400' },
-    { name: 'Rust', icon: <Cpu size={20} />, color: 'text-orange-400' },
-    { name: 'GraphQL', icon: <Globe size={20} />, color: 'text-purple-400' },
+    { name: 'Java', icon: <Code size={20} />, color: 'text-orange-400' },
+    { name: 'Spring Boot', icon: <Zap size={20} />, color: 'text-lime-400' },
+    { name: 'MySQL', icon: <Box size={20} />, color: 'text-cyan-400' },
+    { name: 'Redis', icon: <Activity size={20} />, color: 'text-red-400' },
+    { name: 'RocketMQ', icon: <Layers size={20} />, color: 'text-yellow-400' },
+    { name: 'Docker', icon: <Terminal size={20} />, color: 'text-blue-400' },
+    { name: 'React', icon: <Code size={20} />, color: 'text-sky-400' },
+    { name: 'Vue', icon: <Globe size={20} />, color: 'text-emerald-400' },
+    { name: 'PostgreSQL', icon: <Box size={20} />, color: 'text-indigo-400' },
+    { name: 'LLM APIs', icon: <Cpu size={20} />, color: 'text-pink-400' },
   ];
 
   const projects = [
