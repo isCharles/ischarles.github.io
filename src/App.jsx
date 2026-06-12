@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { 
   Code, Terminal, Cpu, Zap, Globe, 
   ArrowUpRight, Github, Twitter, Mail, 
@@ -170,20 +170,6 @@ const customStyles = `
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      scroll-behavior: auto !important;
-      transition-duration: 0.01ms !important;
-    }
-
-    .glitch-text::before,
-    .glitch-text::after,
-    .grain {
-      display: none;
-    }
-  }
 `;
 
 const App = () => {
@@ -274,7 +260,13 @@ const App = () => {
   };
 
   const activeBlog = route.name === "blog" ? findBlogByKey(route.key) : null;
-  const visibleBlogs = showAllThoughts ? blogs : blogs.slice(0, 6);
+  const randomPreviewBlogs = useMemo(() => {
+    const latestBlogIds = new Set(blogs.slice(0, 2).map((blog) => blog.id));
+    const candidates = blogs.filter((blog) => !latestBlogIds.has(blog.id));
+    const pool = candidates.length >= 2 ? candidates : blogs;
+    return [...pool].sort(() => Math.random() - 0.5).slice(0, 2);
+  }, []);
+  const visibleBlogs = showAllThoughts ? blogs : randomPreviewBlogs;
 
   useEffect(() => {
     if (route.name === "home" && route.section) {
@@ -318,25 +310,6 @@ const App = () => {
       status: "CODE",
       color: "border-lime-400",
       repoUrl: "https://github.com/isCharles/TimeGrocery",
-    },
-    {
-      id: 3,
-      title: "MiniAuth",
-      desc: "A minimal user authentication system built with FastAPI + SQLAlchemy + JWT, focused on core auth primitives (login, tokens, password hashing) without heavy framework magic.",
-      tech: "Python / FastAPI / SQLAlchemy / JWT",
-      status: "OPEN",
-      color: "border-cyan-400",
-      repoUrl: "https://github.com/isCharles/MiniAuth",
-    },
-    {
-      id: 4,
-      title: "Pytorch2ONNX",
-      desc: "PyTorch 模型转 ONNX 指南与示例（配套站点），用于把训练产物对接推理部署链路。",
-      tech: "PyTorch / ONNX / Export Pipeline",
-      status: "LIVE",
-      color: "border-cyan-400",
-      repoUrl: "https://github.com/isCharles/Pytorch2ONNX",
-      demoUrl: "https://ischarles.github.io/Pytorch2ONNX/",
     }
   ];
 
@@ -547,10 +520,10 @@ const App = () => {
             <ArrowUpRight className="text-[#333]" size={40} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[minmax(180px,auto)]">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             
             {/* Bio Card */}
-            <div className="col-span-1 md:col-span-2 row-span-2 bg-[#111] border border-[#333] p-8 relative overflow-hidden group hover:border-[#ccff00] transition-colors">
+            <div className="col-span-1 md:col-span-2 bg-[#111] border border-[#333] p-8 relative overflow-hidden group hover:border-[#ccff00] transition-colors">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                 <Activity size={100} />
               </div>
@@ -565,7 +538,7 @@ const App = () => {
             </div>
 
             {/* Stats Card */}
-            <div className="col-span-1 md:col-span-1 bg-[#ccff00] text-black p-6 flex flex-col justify-between neo-card cursor-none"
+            <div className="col-span-1 md:col-span-1 min-h-[180px] bg-[#ccff00] text-black p-6 flex flex-col justify-between neo-card cursor-none"
                  onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
               <Eye size={32} />
               <div>
@@ -575,7 +548,7 @@ const App = () => {
             </div>
 
              {/* Social Card */}
-             <div className="col-span-1 md:col-span-1 bg-[#00ffff] text-black p-6 flex flex-col justify-between neo-card group"
+             <div className="col-span-1 md:col-span-1 min-h-[180px] bg-[#00ffff] text-black p-6 flex flex-col justify-between neo-card group"
                   onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
               <a href={X_URL} target="_blank" rel="noreferrer" className="inline-block" aria-label="Open X profile">
                 <Twitter size={32} className="group-hover:rotate-12 transition-transform" />
@@ -587,7 +560,7 @@ const App = () => {
             </div>
 
             {/* Tech Stack Grid */}
-            <div className="col-span-1 md:col-span-2 bg-[#111] border border-[#333] p-8">
+            <div className="col-span-1 md:col-span-2 md:col-start-3 bg-[#111] border border-[#333] p-8">
               <h3 className="text-sm font-mono text-gray-500 mb-6 uppercase tracking-widest">Weapon of Choice</h3>
               <div className="grid grid-cols-3 gap-4">
                 {techStack.map((tech) => (
@@ -604,7 +577,7 @@ const App = () => {
               href="https://www.bupt.edu.cn/"
               target="_blank"
               rel="noreferrer"
-              className="col-span-1 md:col-span-2 bg-[#ff00ff] text-white p-8 flex items-center justify-center relative overflow-hidden group neo-card"
+              className="col-span-1 md:col-span-2 md:col-start-1 md:row-start-2 min-h-[180px] bg-[#ff00ff] text-white p-8 flex items-center justify-center relative overflow-hidden group neo-card"
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               aria-label="Open BUPT official website"
@@ -622,8 +595,8 @@ const App = () => {
                </div>
             </a>
 
-            {/* Latest Logs Card (fills the empty space to the right of location on desktop) */}
-            <div className="col-span-1 md:col-span-2 bg-[#111] border border-[#333] p-8 relative overflow-hidden group hover:border-[#00ffff] transition-colors">
+            {/* Latest Logs Card */}
+            <div className="col-span-1 md:col-span-4 bg-[#111] border border-[#333] p-8 relative overflow-hidden group hover:border-[#00ffff] transition-colors">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
                 <MessageSquare size={90} />
               </div>
@@ -715,7 +688,7 @@ const App = () => {
               </a>
             ))}
           </div>
-          {blogs.length > 6 && (
+          {blogs.length > randomPreviewBlogs.length && (
             <div className="mt-8 flex justify-center">
               <button
                 type="button"
