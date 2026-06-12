@@ -2,7 +2,7 @@
 id: 17
 slug: api-design-small-habits
 category: TECH
-date: 2026-06-12
+date: 2025-05-06
 title: 写接口时几个让我少踩坑的小习惯
 preview: 接口不是 Controller 里多一个方法。它会变成前后端、测试和未来自己的契约。
 tags:
@@ -24,4 +24,3 @@ tags:
 最后一个是别把前端校验当成唯一校验。前端可以提示用户，后端必须保护系统。
 
 这些东西都不炫，但它们会决定一个接口后面好不好维护。
-

@@ -2,7 +2,7 @@
 id: 22
 slug: why-i-like-small-checklists
 category: NOTES
-date: 2026-06-12
+date: 2026-06-07
 title: 我开始喜欢小 checklist
 preview: checklist 看起来笨，但它能减少很多“我以为我做了”的错误。
 tags:
@@ -29,4 +29,3 @@ debug 也一样。先看请求，再看日志，再看配置，再看依赖服�
 checklist 的价值不是证明我严谨，而是承认我会忘。工程里很多可靠性，都是建立在承认人会犯错的基础上。
 
 这点挺朴素，但很有用。
-

@@ -201,6 +201,7 @@ const App = () => {
   const [scrolled, setScrolled] = useState(0);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeProject, setActiveProject] = useState(null);
+  const [showAllThoughts, setShowAllThoughts] = useState(false);
 
   const parseRoute = () => {
     const hash = window.location.hash || "";
@@ -273,6 +274,7 @@ const App = () => {
   };
 
   const activeBlog = route.name === "blog" ? findBlogByKey(route.key) : null;
+  const visibleBlogs = showAllThoughts ? blogs : blogs.slice(0, 6);
 
   useEffect(() => {
     if (route.name === "home" && route.section) {
@@ -687,11 +689,11 @@ const App = () => {
             <MessageSquare className="text-[#333]" size={40} />
           </div>
 
-          <div className="space-y-8">
-            {blogs.map((blog) => (
+          <div className="space-y-6">
+            {visibleBlogs.map((blog) => (
               <a
                 key={blog.id}
-                className="group relative block w-full text-left bg-[#0a0a0a] border-2 border-[#222] hover:border-[#ccff00] p-8 transition-all duration-300 neo-card"
+                className="group relative block w-full text-left bg-[#0a0a0a] border-2 border-[#222] hover:border-[#ccff00] p-5 md:p-6 transition-all duration-300 neo-card"
                 href={getBlogPath(blog)}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
@@ -704,8 +706,8 @@ const App = () => {
                   <ArrowUpRight className="text-[#222] group-hover:text-[#ccff00] transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" size={28} />
                 </div>
                 
-                <h3 className="text-2xl md:text-4xl font-bold mb-3 group-hover:text-[#ccff00] transition-colors">{blog.title}</h3>
-                <p className="text-gray-400 font-mono mb-6 max-w-2xl">{blog.preview}</p>
+                <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-[#ccff00] transition-colors">{blog.title}</h3>
+                <p className="text-gray-400 font-mono mb-4 max-w-2xl line-clamp-2">{blog.preview}</p>
                 
                 <div className="flex gap-4 font-mono text-xs text-gray-600">
                   {blog.tags.map(tag => <span key={tag}>{tag}</span>)}
@@ -713,6 +715,19 @@ const App = () => {
               </a>
             ))}
           </div>
+          {blogs.length > 6 && (
+            <div className="mt-8 flex justify-center">
+              <button
+                type="button"
+                className="border-2 border-[#ccff00] px-6 py-3 font-mono text-sm font-bold text-[#ccff00] hover:bg-[#ccff00] hover:text-black transition-colors"
+                onClick={() => setShowAllThoughts((value) => !value)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                {showAllThoughts ? "COLLAPSE LOGS" : `VIEW ALL ${blogs.length} LOGS`}
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Projects Grid */}

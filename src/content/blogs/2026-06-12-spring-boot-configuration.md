@@ -2,7 +2,7 @@
 id: 7
 slug: spring-boot-configuration
 category: TECH
-date: 2026-06-12
+date: 2025-04-15
 title: Spring Boot 简单，直到配置开始说话
 preview: Spring Boot 的上手体验很好，但我真正开始尊重它，是从读配置开始的。
 tags:
@@ -28,4 +28,3 @@ Spring Boot 很容易给人一种错觉：建个项目，引几个 starter，写
 Spring Boot 的便利很大一部分来自自动配置，但自动也意味着你要知道它自动做了什么。否则出了问题，你只能看到结果，看不到原因。
 
 我现在对“能跑起来”这句话更谨慎了。能跑起来只是第一步，知道它为什么能跑起来，才算真正开始掌握。
-

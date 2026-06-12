@@ -2,7 +2,7 @@
 id: 18
 slug: env-vars-and-secrets
 category: DEBUG
-date: 2026-06-12
+date: 2026-03-10
 title: 环境变量和密钥：我现在不敢随便写进配置了
 preview: API Key 写进本地配置很方便，直到你准备把项目推到 GitHub。
 tags:
@@ -26,4 +26,3 @@ tags:
 还有一个小经验：不要只把 `.env` 加进 `.gitignore` 就安心。最好提供一个 `.env.example`，告诉未来的自己和别人需要哪些变量，但不要放真实值。
 
 安全很多时候不是高级技术，而是不把危险东西随手放到公开位置。
-

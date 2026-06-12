@@ -2,7 +2,7 @@
 id: 19
 slug: localhost-is-a-lie
 category: DEBUG
-date: 2026-06-12
+date: 2025-08-04
 title: localhost 有时候是个谎言
 preview: localhost 这个词太熟了，以至于我很晚才意识到：它不是一个固定地点，而是相对当前进程的位置。
 tags:
@@ -27,4 +27,3 @@ tags:
 我现在看到配置里的 `localhost` 会本能地问一句：这是相对于谁？
 
 这个问题很小，但能救很多时间。
-

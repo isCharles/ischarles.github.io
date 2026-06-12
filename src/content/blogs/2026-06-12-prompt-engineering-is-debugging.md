@@ -2,7 +2,7 @@
 id: 11
 slug: prompt-engineering-is-debugging
 category: AI
-date: 2026-06-12
+date: 2025-11-21
 title: Prompt Engineering 大部分时候像 Debug
 preview: 我越来越觉得 prompt 不是写作文，而是在调试一个不稳定但很有用的接口。
 tags:
@@ -28,4 +28,3 @@ tags:
 - 判断好坏的标准是什么
 
 说到底，prompt 不是魔法咒语。它是一种需求描述，只是接收需求的对象换成了模型。
-

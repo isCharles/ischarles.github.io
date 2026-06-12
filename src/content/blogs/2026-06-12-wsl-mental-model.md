@@ -2,7 +2,7 @@
 id: 10
 slug: wsl-mental-model
 category: DEBUG
-date: 2026-06-12
+date: 2025-07-11
 title: WSL 给我的最大教训：先搞清楚自己在哪
 preview: WSL 很方便，但也很容易让人忘记自己到底是在 Windows、Linux，还是 Docker 的网络里。
 tags:
@@ -31,4 +31,3 @@ WSL 对我来说是一个很实用的工具，但它也制造过不少混乱。
 3. 它读的配置文件是哪一份？
 
 这三个问题比很多搜索结果都管用。
-

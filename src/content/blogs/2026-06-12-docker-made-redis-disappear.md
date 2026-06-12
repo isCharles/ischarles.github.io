@@ -2,7 +2,7 @@
 id: 5
 slug: docker-made-redis-disappear
 category: DEBUG
-date: 2026-06-12
+date: 2025-08-26
 title: Docker 让我以为 Redis 数据消失了
 preview: 有一次我打开 Redis，发现昨天刚重建的缓存不见了，旧数据反而回来了。最后问题不在 Redis，而在我自己没搞清楚运行环境。
 tags:
@@ -27,4 +27,3 @@ tags:
 这件事之后，我开始养成几个习惯。先看进程在哪里跑，再看端口是谁占用，再看应用配置连的是哪个 host。不要一上来就怀疑数据没了，也不要一看到 `localhost` 就默认它指向自己以为的那个地方。
 
 环境问题有时候不难，但它很会制造错觉。
-
