@@ -802,10 +802,6 @@ const App = () => {
             </div>
           </div>
         </div>
-        <div className="mx-auto mt-12 flex max-w-7xl items-center justify-between border-x border-t border-[#222] px-4 py-3 font-mono text-[10px] tracking-[0.24em] text-gray-500">
-          <span>04 / INTERACTIVE SIGN-OFF</span>
-          <span className="text-[#ccff00]">MOVE POINTER TO DISTORT</span>
-        </div>
         <div className="border-y-4 border-black">
           <DistortedWordmark text={BRAND_NAME} />
         </div>

@@ -6,8 +6,8 @@ export const siteConfig = {
   },
   brand: {
     // Shown in the top nav + footer
-    name: "YANG",
-    accent: "BLOG",
+    name: "isCharlesYang",
+    accent: "com",
   },
   links: {
     github: "https://github.com/isCharles",
