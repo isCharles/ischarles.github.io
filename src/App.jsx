@@ -294,13 +294,12 @@ const App = () => {
   const projects = [
     {
       id: 1,
-      title: "OfferMate",
-      desc: "An AI interview preparation workspace built from Interview-Guide: resume analysis, mock interviews, model provider configuration, RAG knowledge base, and a protected public demo.",
-      tech: "Spring Boot / React / PostgreSQL / Redis / MinIO / LLM",
-      status: "PRIVATE DEMO",
+      title: "Ardor",
+      desc: "An AI career agent with long-term memory that connects resume analysis, text and voice mock interviews, interview recaps, a personal knowledge base, and learning plans in one workspace.",
+      tech: "Spring Boot / Next.js / PostgreSQL / Redis / LangChain4j",
+      status: "CODE",
       color: "border-pink-400",
-      repoUrl: "https://github.com/isCharles/interview-guide",
-      demoUrl: "https://interview.ischarlesyang.com",
+      repoUrl: "https://github.com/isCharles/project-ardor",
     },
     {
       id: 2,
