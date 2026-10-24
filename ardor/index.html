@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ardor — AI 求职与学习工作台 · Charles Yang</title>
+  <meta name="description" content="Ardor 产品展示：通过真实界面与合成演示数据，了解 AI 对话、简历诊断、面试复盘、定向学习与执行追踪。无需登录，不连接产品后台。">
+  <meta name="theme-color" content="#f7f6f2">
+  <meta property="og:title" content="Ardor — 从面试复盘，到有方向的学习">
+  <meta property="og:description" content="一个把求职资料、面试记录与学习行动连起来的 AI 工作台。浏览真实界面，无需登录。">
+  <meta property="og:image" content="https://ischarlesyang.com/ardor/screenshots/conversation.png">
+  <link rel="icon" href="/ardor/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/ardor/showcase.css">
+  <script src="/ardor/showcase.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#walkthrough">跳转到功能展示</a>
+  <header class="nav wrap">
+    <a class="brand" href="/ardor/" aria-label="Ardor 展示首页"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M13 3c1 5-3 5-2 9 1 2 3 1 3-1 4 4 2 9-2 9-5 0-8-5-5-9 0 3 2 3 2 1-1-4 4-5 4-9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>Ardor<span class="byline">AI CAREER WORKSPACE</span></a>
+    <nav aria-label="页面导航"><a href="#walkthrough">产品体验</a><a href="#engineering">工程实现</a><a class="nav-source" href="https://github.com/isCharles/project-ardor" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></nav>
+  </header>
+  <main>
+    <section class="hero wrap">
+      <div class="eyebrow"><span class="dot"></span> A PERSONAL PROJECT, BUILT TO BE USED.</div>
+      <h1>从一次面试，<br>走向<span>下一次更好的回答。</span></h1>
+      <div class="hero-bottom"><p>Ardor 是一个 AI 求职与学习工作台。<br class="desktop-break">让简历、面试记录和学习行动不再散落在不同对话里。</p><a class="primary" href="#walkthrough">看看它如何工作 <span aria-hidden="true">↓</span></a></div>
+      <div class="hero-note"><span class="note-line"></span>真实产品界面 · 合成演示数据 · 静态展示，无需登录</div>
+    </section>
+    <section class="walkthrough wrap" id="walkthrough" aria-labelledby="walkthrough-title">
+      <div class="section-top"><h2 id="walkthrough-title">不是一场聊天，是一条准备路径。</h2><span class="mono">THE PRODUCT / 01—05</span></div>
+      <div class="tabs" role="tablist" aria-label="选择产品功能">
+        <button role="tab" id="tab-conversation" aria-selected="true" aria-controls="feature-panel" tabindex="0" data-feature="conversation"><span>01</span>Ardor 对话</button>
+        <button role="tab" id="tab-resume" aria-selected="false" aria-controls="feature-panel" tabindex="-1" data-feature="resume"><span>02</span>简历诊断</button>
+        <button role="tab" id="tab-interview" aria-selected="false" aria-controls="feature-panel" tabindex="-1" data-feature="interview"><span>03</span>面试复盘</button>
+        <button role="tab" id="tab-learning" aria-selected="false" aria-controls="feature-panel" tabindex="-1" data-feature="learning"><span>04</span>定向学习</button>
+        <button role="tab" id="tab-trace" aria-selected="false" aria-controls="feature-panel" tabindex="-1" data-feature="trace"><span>05</span>执行追踪</button>
+      </div>
+      <div id="feature-panel" role="tabpanel" aria-labelledby="tab-conversation" tabindex="0">
+        <div class="screen-shell"><div class="screen-bar"><div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div><span id="screen-path">Ardor / 对话</span><span class="screen-label">PRODUCT CAPTURE</span></div>
+          <button class="screen-open" id="screen-open" aria-label="放大 Ardor 对话截图"><img id="feature-image" src="./screenshots/conversation.png" width="1440" height="960" alt="Ardor 对话界面：根据面试表现整理 Redis、线程池和异步任务的复习重点" fetchpriority="high"><span class="zoom-hint">↗ 点击查看完整界面</span></button>
+        </div>
+        <div class="feature-caption"><div><p class="eyebrow" id="feature-kicker">CONVERSATION, WITH CONTEXT</p><h3 id="feature-title">你的目标和材料，不必每次从头解释。</h3></div><div class="feature-description" aria-live="polite"><p id="feature-description">围绕已有简历、面试记录与学习计划展开对话，让回答落到具体准备方向。对话是工作台的入口，而不是另一个信息孤岛。</p><div id="feature-tags" class="tags"><span>上下文引用</span><span>长期记忆</span><span>工具调用</span></div></div></div>
+      </div>
+      <p class="capture-disclosure">截图由 Ardor 前端实际渲染；以同一虚构用户的 3 份简历、6 门课程、8 道面试题和跨模块规划构成完整场景。人物、学校、公司、岗位、经历及时间均已完全置换，分数与回复为示例。点击截图可滚动阅读完整报告。此页不运行模型，也不会访问账户数据。</p>
+    </section>
+    <section class="story wrap" aria-labelledby="story-title">
+      <div class="story-lead"><p class="eyebrow">WHY I BUILT IT</p><h2 id="story-title">记录很多，<br>不等于真的准备好了。</h2></div>
+      <div class="story-body"><p>一次面试后，纪要往往躺在文档里，薄弱点留在聊天记录里，复习计划又写在另一个工具里。下一次准备，仍然要重新整理。</p><p>Ardor 尝试把这些环节连起来：保存可靠的面试纪要，整理问题与反馈，把薄弱点带入学习和练习，再回到问题本身。</p><div class="journey" aria-label="准备路径"><span>面试记录</span><b aria-hidden="true">→</b><span>识别薄弱点</span><b aria-hidden="true">→</b><span>学习与重答</span><b aria-hidden="true">→</b><span>持续复习</span></div></div>
+    </section>
+    <section class="engineering wrap" id="engineering" aria-labelledby="engineering-title">
+      <div class="section-top"><div><p class="eyebrow">BEHIND THE INTERFACE</p><h2 id="engineering-title">不止调用模型，<br>也认真对待执行之后的事。</h2></div><a class="text-link" href="https://github.com/isCharles/project-ardor" target="_blank" rel="noopener noreferrer">阅读源码 <span aria-hidden="true">↗</span></a></div>
+      <div class="engineering-list">
+        <article><span class="mono">01 / BOUNDARIES</span><h3>业务状态有自己的归属</h3><p>求职、学习、资料、助手与日程采用模块化单体组织。手动操作和 Agent 工具复用应用服务，不让模型直接操作数据库。</p></article>
+        <article><span class="mono">02 / EXECUTION</span><h3>慢任务，不把界面锁住</h3><p>生成与评估使用持久化任务，区分消息、运行和结果。支持查看任务状态、取消与追加引导；停止不冒充回滚。</p></article>
+        <article><span class="mono">03 / TRUST</span><h3>行动可追踪，删除需确认</h3><p>资源按用户归属校验。删除先展示真实目标，用户确认后才执行；模型和外部资料不能替代用户授权。</p></article>
+      </div>
+      <div class="stack"><span class="mono">BUILT WITH</span><p>Java 21 / Spring Boot / Next.js / PostgreSQL / Redis / LangChain4j / Docker Compose</p></div>
+    </section>
+    <section class="closing wrap"><p class="eyebrow">BUILT BY CHARLES YANG</p><h2>看见界面，<br>也欢迎追问背后的取舍。</h2><div><a class="primary" href="https://github.com/isCharles/project-ardor" target="_blank" rel="noopener noreferrer">查看项目源码 ↗</a><a class="secondary" href="/#contact">联系我 ↗</a></div></section>
+  </main>
+  <footer class="wrap"><a href="/">← 返回个人网站</a><span>Ardor · 产品快照 2026.10 · 静态展示</span><a href="#walkthrough">回到产品体验 ↑</a></footer>
+  <dialog id="image-dialog" aria-label="产品截图预览"><div class="dialog-toolbar"><span id="dialog-title">Ardor 对话</span><button id="close-dialog" autofocus aria-label="关闭截图预览">关闭 <span aria-hidden="true">×</span></button></div><img id="dialog-image" width="1440" height="960" alt=""><p>← → 切换功能 · Esc 关闭</p></dialog>
+</body></html>

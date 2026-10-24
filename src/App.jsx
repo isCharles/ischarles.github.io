@@ -300,6 +300,8 @@ const App = () => {
       status: "CODE",
       color: "border-pink-400",
       repoUrl: "https://github.com/isCharles/project-ardor",
+      demoUrl: "/ardor/",
+      demoLabel: "PRODUCT TOUR",
     },
     {
       id: 2,
@@ -842,7 +844,7 @@ const App = () => {
                   rel="noreferrer"
                   className="bg-[#00ffff] text-black font-bold px-6 py-3 hover:bg-white transition-colors inline-flex items-center justify-center"
                 >
-                  OPEN DEMO
+                  {activeProject.demoLabel || "OPEN DEMO"}
                 </a>
               ) : null}
               <a
