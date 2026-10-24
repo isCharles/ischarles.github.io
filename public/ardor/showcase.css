@@ -2,4 +2,3 @@
 /* Ardor's warm, lavender-tinted workspace identity, isolated from the portfolio. */
 dialog img{max-height:none;object-fit:initial}dialog{scroll-behavior:smooth}.dialog-toolbar{position:sticky;top:-16px;z-index:1;background:#f7f8f3;padding:10px 0;border-bottom:1px solid #e7e0ee}
 body{background:radial-gradient(ellipse 55% 24% at 0% 28%,#f5dcee55,transparent),radial-gradient(ellipse 55% 30% at 100% 30%,#dbe2ff88,transparent),#faf9f6}.screen-shell{border-color:#e0d9ee;box-shadow:0 30px 90px -40px #9b87cd55}.screen-bar{background:#f3f0f8;border-bottom-color:#e8e1f1}.hero h1 span{background:linear-gradient(110deg,#a855f7,#7c3aed 65%,#6c7fe7);-webkit-background-clip:text;background-clip:text;color:transparent}.brand-icon{background:#7c3aed}.hero-note{color:#94859e}.tabs{border-bottom-color:#e2dbea}.tags span{border-color:#e6ddf0}.closing{background:radial-gradient(ellipse at center,#ede6ff66,transparent 70%)}
-
