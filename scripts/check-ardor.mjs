@@ -4,7 +4,8 @@ import {readFile,stat} from 'node:fs/promises';
 const html=await readFile('dist/ardor/index.html','utf8');
 assert.match(html,/<html lang="zh-CN">/);
 assert.match(html,/<title>Ardor/);
-assert.ok(html.includes('AI for a more capable you'),'The official slogan must replace the old workspace label');
+assert.ok(html.includes('AI for a more capable you'),'The English slogan must replace the old workspace label');
+assert.ok(html.includes('让热望，有回响。'),'The Chinese slogan must be present');
 assert.ok(!html.includes('AI CAREER WORKSPACE'),'The old workspace label must stay removed');
 assert.ok(html.includes('id="lang-toggle"'),'The page must expose a language switch');
 assert.ok(html.includes('Turn your job search'),'The English hero must be present');
@@ -13,6 +14,8 @@ for(const heading of ['求职记录','面试复盘','定向学习','Agent 执行
 for(const heading of ['Job search record','Interview review','Targeted learning','Agent execution'])assert.ok(html.includes(heading),`Missing English chapter: ${heading}`);
 assert.equal((html.match(/class="shot-open"/g)||[]).length,6,'The tour must show six product captures');
 assert.equal((html.match(/data-en-title=/g)||[]).length,6,'Every capture needs an English dialog title');
+assert.equal((html.match(/href="https:\/\/github\.com\/isCharles\/project-ardor"/g)||[]).length,1,'GitHub must have exactly one entrance');
+assert.ok(!html.includes('class="down"')&&!html.includes('class="nav-product"')&&!html.includes('class="meta"'),'Duplicate jump links and the extra meta line must stay removed');
 assert.ok(!html.includes('role="tab"'),'The old tabbed feature list must stay removed');
 assert.ok(!html.includes('portfolio-'),'Ardor must not import the portfolio application');
 assert.ok(!html.includes('/ardor/favicon.svg'),'The cached legacy favicon path must not be referenced');

@@ -15,7 +15,6 @@ try{
  await page.goto(base+'/ardor/');
  await page.getByRole('heading',{level:1}).waitFor();
  assert.match(await page.title(),/^Ardor/);
- assert.equal(await page.locator('.brand-note').textContent(),'AI for a more capable you');
  const logo=page.locator('.brand img');
  await page.waitForFunction(()=>{const image=document.querySelector('.brand img');return image&&image.complete&&image.naturalWidth>0;});
  assert.ok((await logo.getAttribute('src')).includes('/ardor/ardor-mark.svg'));
@@ -23,16 +22,19 @@ try{
  assert.ok(icons.includes('/ardor/ardor-mark.svg'),'The SVG mark must be declared with its new URL');
  assert.ok(icons.includes('/ardor/ardor-mark-32.png'),'The PNG favicon fallback must be declared');
  assert.equal(await page.locator('link[rel="apple-touch-icon"]').getAttribute('href'),'/ardor/ardor-mark-180.png');
+ assert.equal(await page.locator('a[href="https://github.com/isCharles/project-ardor"]').count(),1,'GitHub must have exactly one entrance');
+ assert.equal(await page.locator('.nav-product, .down, .meta, .hero-foot').count(),0,'Duplicate entrances and the extra meta line must stay removed');
 
  const headings={zh:['求职记录','面试复盘','定向学习','Agent 执行'],en:['Job search record','Interview review','Targeted learning','Agent execution']};
  const labels={
-   zh:{hero:'把求职过程',toggle:'EN',toggleLabel:'切换为英文',zoom:'原始尺寸',fit:'适应窗口',close:'关闭'},
-   en:{hero:'Turn your job search',toggle:'中文',toggleLabel:'Switch to Chinese',zoom:'Original size',fit:'Fit to window',close:'Close'}
+   zh:{hero:'把求职过程',slogan:'让热望，有回响。',toggle:'EN',toggleLabel:'切换为英文',zoom:'原始尺寸',fit:'适应窗口',close:'关闭'},
+   en:{hero:'Turn your job search',slogan:'AI for a more capable you',toggle:'中文',toggleLabel:'Switch to Chinese',zoom:'Original size',fit:'Fit to window',close:'Close'}
  };
 
  async function expectLanguage(language){
    const expected=labels[language];
    assert.equal(await page.locator('html').getAttribute('lang'),language==='en'?'en':'zh-CN');
+   assert.equal((await page.locator('.brand-note').innerText()).trim(),expected.slogan);
    assert.equal((await page.locator('.lang-toggle').textContent()).trim(),expected.toggle);
    assert.equal(await page.locator('.lang-toggle').getAttribute('aria-label'),expected.toggleLabel);
    assert.ok((await page.locator('h1').innerText()).includes(expected.hero));
@@ -120,6 +122,7 @@ try{
  await englishDefault.goto(base+'/ardor/');
  await englishDefault.getByRole('heading',{level:1}).waitFor();
  assert.equal(await englishDefault.locator('html').getAttribute('lang'),'en','A non-Chinese browser should start in English');
+ assert.equal((await englishDefault.locator('.brand-note').innerText()).trim(),'AI for a more capable you');
  await englishDefault.close();
 
  await page.goto(base+'/');
