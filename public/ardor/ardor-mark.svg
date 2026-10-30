@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="109.5 97 340 340">
-<!-- Optical 16-48 px adaptation of ardor-mark.svg. Paths are unchanged: the viewBox is tightened around the mark and the radial glow overlays are omitted so the four petals keep their contrast when rasterised small. -->
+<!-- Optical 16-48 px adaptation of the official Ardor mark. Paths are unchanged: the viewBox is tightened around the mark and the radial glow overlays are omitted so the four petals keep their contrast when rasterised small. -->
 <defs>
 <linearGradient id="blue" x1=".16" y1=".8" x2=".94" y2=".24" gradientUnits="objectBoundingBox"><stop stop-color="#4aa3ff" /><stop offset=".55" stop-color="#0b78ff" /><stop offset="1" stop-color="#0062f0" /></linearGradient>
 <linearGradient id="pink" x1="0" y1=".9" x2=".9" y2=".05"><stop stop-color="#4aa3ff" /><stop offset=".55" stop-color="#9fc0ff" /><stop offset=".77" stop-color="#f3c7ff" /><stop offset="1" stop-color="#ffc9ec" /></linearGradient>
