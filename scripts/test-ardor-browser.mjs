@@ -23,6 +23,8 @@ try{
  assert.ok(icons.includes('/ardor/ardor-mark.svg'),'The SVG mark must be declared with its new URL');
  assert.ok(icons.includes('/ardor/ardor-mark-32.png'),'The PNG favicon fallback must be declared');
  assert.equal(await page.locator('link[rel="apple-touch-icon"]').getAttribute('href'),'/ardor/ardor-mark-180.png');
+ assert.equal(await page.locator('a[href="https://github.com/isCharles/project-ardor"]').count(),1,'GitHub must have exactly one entrance');
+ assert.equal(await page.locator('.nav-product, .down, .meta, .hero-foot').count(),0,'Duplicate entrances and the extra meta line must stay removed');
 
  const headings={zh:['求职记录','面试复盘','定向学习','Agent 执行'],en:['Job search record','Interview review','Targeted learning','Agent execution']};
  const labels={

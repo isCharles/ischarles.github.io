@@ -9,6 +9,7 @@
 - 页头品牌锁定使用官方 slogan “AI for a more capable you”，替换旧的 AI CAREER WORKSPACE 标签。
 - 页面中英双语，右上角“EN / 中文”即时切换；首次访问跟随浏览器语言，之后记住访客选择。`<html lang>`、标题、描述、章节、图片替代文本和放大对话框文案会一起切换。
 - 官方四瓣标志使用新的 `ardor-mark.svg` 地址，并提供 32px PNG 与 apple-touch 回退，避免旧火焰 favicon 继续命中缓存。
+- 每类入口只保留一处：页头只有品牌与语言切换，首屏不再重复“界面”跳转，GitHub 只在页尾出现一次，页脚只留个人网站链接。
 - 页面只保留每章一段说明，不重复口号、标签或功能清单；具体能力由图中的真实界面表达。
 
 ## 截图与隐私
@@ -35,7 +36,7 @@ ARDOR_FRONTEND_DIR=/absolute/path/to/ardor/frontend node scripts/capture-ardor.m
 
 脚本启动独立 3127 端口，所有 API 由虚构夹具响应，生成对话、简历分析、写简历、面试记录、学习和执行轨迹六张 2× 截图，结束后关闭自己的服务。Windows 可设 `ARDOR_CAPTURE_BROWSER=msedge` 使用本机 Edge。
 
-浏览器回归可使用相同环境变量执行 `node scripts/test-ardor-browser.mjs`（默认预览地址 `http://127.0.0.1:4175`，可通过 `SHOWCASE_BASE` 覆盖）。必须实际找到四个章节和六个截图按钮，分别在中英两种语言下验证章节、按钮文案、图片替代文本、放大与缩放切换、Esc 关闭、刷新持久化和手机预览边界；同时检查英文浏览器首次访问默认英文、favicon 使用新地址、零后台请求及个人主页入口。QA 全页截图写入忽略的依赖缓存，不进入部署产物。
+浏览器回归可使用相同环境变量执行 `node scripts/test-ardor-browser.mjs`（默认预览地址 `http://127.0.0.1:4175`，可通过 `SHOWCASE_BASE` 覆盖）。必须实际找到四个章节和六个截图按钮，分别在中英两种语言下验证章节、按钮文案、图片替代文本、放大与缩放切换、Esc 关闭、刷新持久化和手机预览边界；同时检查英文浏览器首次访问默认英文、favicon 使用新地址、GitHub 只有一个入口、零后台请求及个人主页入口。QA 全页截图写入忽略的依赖缓存，不进入部署产物。
 
 ## 部署
 
