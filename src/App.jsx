@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { lazy, Suspense, useRef, useState, useEffect } from 'react';
 import { 
   Code, Terminal, Cpu, Zap, Globe, 
   ArrowUpRight, Github, Twitter, Mail, 
@@ -7,15 +7,14 @@ import {
 } from 'lucide-react';
 import { blogs } from './data/blogs.js';
 import { Modal } from './components/Modal.jsx';
-import { BlogPage } from './pages/BlogPage.jsx';
 import { FloatingDock } from './components/FloatingDock.jsx';
 import { DistortedWordmark } from './components/DistortedWordmark.jsx';
 import { siteConfig } from "./siteConfig.js";
 
+const BlogPage = lazy(() => import('./pages/BlogPage.jsx').then(module => ({ default: module.BlogPage })));
+
 // --- Custom CSS for Advanced Animations ---
 const customStyles = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap');
-
   :root {
     --color-bg: #050505;
     --color-text: #ffffff;
@@ -51,9 +50,13 @@ const customStyles = `
     border: 2px solid var(--color-primary);
     border-radius: 50%;
     position: fixed;
+    top: 0;
+    left: 0;
     pointer-events: none;
     z-index: 9999;
-    transform: translate(-50%, -50%);
+    opacity: var(--cursor-opacity, 0);
+    transform: translate3d(-100px, -100px, 0) translate(-50%, -50%);
+    will-change: transform;
     transition: width 0.2s, height 0.2s, background-color 0.2s;
     mix-blend-mode: difference;
   }
@@ -61,7 +64,7 @@ const customStyles = `
     width: 50px;
     height: 50px;
     background-color: var(--color-primary);
-    opacity: 0.5;
+    opacity: calc(var(--cursor-opacity, 0) * 0.5);
     border-color: transparent;
   }
 
@@ -77,18 +80,21 @@ const customStyles = `
     width: 100%;
     height: 100%;
     background: var(--color-bg);
+    animation-play-state: inherit;
   }
   .glitch-text::before {
     left: 2px;
     text-shadow: -1px 0 var(--color-secondary);
     clip: rect(24px, 550px, 90px, 0);
     animation: glitch-anim-2 3s infinite linear alternate-reverse;
+    animation-play-state: inherit;
   }
   .glitch-text::after {
     left: -2px;
     text-shadow: -1px 0 var(--color-accent);
     clip: rect(85px, 550px, 140px, 0);
     animation: glitch-anim 2.5s infinite linear alternate-reverse;
+    animation-play-state: inherit;
   }
   .glitch-text-outline::before, .glitch-text-outline::after {
     color: #ffffff;
@@ -158,14 +164,27 @@ const customStyles = `
     outline-offset: 4px;
   }
 
-  @media (pointer: fine) {
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     body, a, button {
       cursor: none;
     }
   }
 
-  @media (pointer: coarse) {
+  @media (pointer: coarse), (prefers-reduced-motion: reduce) {
     .custom-cursor {
+      display: none;
+    }
+    body, a, button, .cursor-none {
+      cursor: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      scroll-behavior: auto !important;
+    }
+    .glitch-text::before, .glitch-text::after {
       display: none;
     }
   }
@@ -182,9 +201,8 @@ const App = () => {
   const EMAIL = "ischarlesyang@gmail.com";
   const COMMENTS_REPO = "isCharles/ischarles.github.io";
 
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [scrolled, setScrolled] = useState(0);
+  const cursorRef = useRef(null);
+  const progressRef = useRef(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [activeProject, setActiveProject] = useState(null);
   const [showAllThoughts, setShowAllThoughts] = useState(false);
@@ -206,26 +224,84 @@ const App = () => {
 
   const [route, setRoute] = useState(parseRoute);
   
-  // --- Custom Cursor Logic ---
+  // Keep high-frequency visual updates outside React's render cycle.
   useEffect(() => {
-    const updateCursor = (e) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
+    if (route.name !== 'home') return;
+    let cursorFrame = 0;
+    let progressFrame = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+    const updateCursor = (event) => {
+      if (!finePointer.matches || event.pointerType === 'touch') return;
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      if (cursorFrame) return;
+      cursorFrame = requestAnimationFrame(() => {
+        cursorFrame = 0;
+        if (!cursorRef.current) return;
+        cursorRef.current.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
+        cursorRef.current.style.setProperty('--cursor-opacity', '1');
+      });
     };
-    window.addEventListener('mousemove', updateCursor);
-    
-    const handleScroll = () => {
-      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
-      setScrolled(scrolled);
+    const hideCursor = () => {
+      cancelAnimationFrame(cursorFrame);
+      cursorFrame = 0;
+      if (cursorRef.current) cursorRef.current.style.setProperty('--cursor-opacity', '0');
     };
-    window.addEventListener('scroll', handleScroll);
+    const updateProgress = () => {
+      if (progressFrame) return;
+      progressFrame = requestAnimationFrame(() => {
+        progressFrame = 0;
+        const root = document.documentElement;
+        const height = root.scrollHeight - root.clientHeight;
+        const progress = height > 0 ? Math.max(0, Math.min(1, window.scrollY / height)) : 0;
+        if (progressRef.current) progressRef.current.style.transform = `scaleX(${progress})`;
+      });
+    };
+    window.addEventListener('pointermove', updateCursor, { passive: true });
+    document.documentElement.addEventListener('pointerleave', hideCursor);
+    window.addEventListener('blur', hideCursor);
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+    const observer = new ResizeObserver(updateProgress);
+    observer.observe(document.body);
+    updateProgress();
 
     return () => {
-      window.removeEventListener('mousemove', updateCursor);
-      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(cursorFrame);
+      cancelAnimationFrame(progressFrame);
+      observer.disconnect();
+      window.removeEventListener('pointermove', updateCursor);
+      document.documentElement.removeEventListener('pointerleave', hideCursor);
+      window.removeEventListener('blur', hideCursor);
+      window.removeEventListener('scroll', updateProgress);
+      window.removeEventListener('resize', updateProgress);
     };
-  }, []);
+  }, [route.name]);
+
+  useEffect(() => {
+    if (route.name !== 'home') return;
+    const visibility = new Map();
+    const updateAnimations = () => visibility.forEach((visible, element) => {
+      element.style.animationPlayState = visible && !document.hidden ? 'running' : 'paused';
+    });
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => visibility.set(entry.target, entry.isIntersecting));
+      updateAnimations();
+    });
+    document.querySelectorAll('.glitch-text, .marquee-content, .animate-spin-slow, .animate-pulse').forEach(element => {
+      visibility.set(element, false);
+      element.style.animationPlayState = 'paused';
+      observer.observe(element);
+    });
+    document.addEventListener('visibilitychange', updateAnimations);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', updateAnimations);
+      visibility.forEach((_visible, element) => element.style.removeProperty('animation-play-state'));
+    };
+  }, [route.name]);
 
   useEffect(() => {
     const onHashChange = () => setRoute(parseRoute());
@@ -239,8 +315,8 @@ const App = () => {
     }
   }, [route.name]);
 
-  const handleMouseEnter = () => setIsHovering(true);
-  const handleMouseLeave = () => setIsHovering(false);
+  const handleMouseEnter = () => cursorRef.current?.classList.add('hovered');
+  const handleMouseLeave = () => cursorRef.current?.classList.remove('hovered');
 
   const scrollToId = (id) => {
     const el = document.getElementById(id);
@@ -260,12 +336,17 @@ const App = () => {
   };
 
   const activeBlog = route.name === "blog" ? findBlogByKey(route.key) : null;
-  const randomPreviewBlogs = useMemo(() => {
+  const [randomPreviewBlogs] = useState(() => {
     const latestBlogIds = new Set(blogs.slice(0, 2).map((blog) => blog.id));
     const candidates = blogs.filter((blog) => !latestBlogIds.has(blog.id));
     const pool = candidates.length >= 2 ? candidates : blogs;
-    return [...pool].sort(() => Math.random() - 0.5).slice(0, 2);
-  }, []);
+    const shuffled = [...pool];
+    for (let index = shuffled.length - 1; index > 0; index--) {
+      const target = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]];
+    }
+    return shuffled.slice(0, 2);
+  });
   const visibleBlogs = showAllThoughts ? blogs : randomPreviewBlogs;
 
   useEffect(() => {
@@ -295,7 +376,7 @@ const App = () => {
     {
       id: 1,
       title: "Ardor",
-      desc: "An AI career agent with long-term memory that connects resume analysis, text and voice mock interviews, interview recaps, a personal knowledge base, and learning plans in one workspace.",
+      desc: "A self-hostable AI career agent for resume analysis, interview practice, and learning plans. It remembers context across conversations.",
       tech: "Spring Boot / Next.js / PostgreSQL / Redis / LangChain4j",
       status: "CODE",
       color: "border-pink-400",
@@ -306,7 +387,7 @@ const App = () => {
     {
       id: 2,
       title: "TimeGrocery",
-      desc: "A city-local grocery and deals platform for shop discovery, voucher flash sales, asynchronous order processing, multi-level caching, and observability-driven load testing.",
+      desc: "A local grocery and deals platform with shop discovery and voucher flash sales. Uses Redis caching, atomic stock deduction, and asynchronous order processing.",
       tech: "Spring Boot / Vue 3 / Redis / RocketMQ / MySQL",
       status: "CODE",
       color: "border-lime-400",
@@ -316,23 +397,25 @@ const App = () => {
 
   const heroMetrics = [
     { label: "BASE", value: "BEIJING / CN" },
-    { label: "FOCUS", value: "SYSTEMS + INTERFACES" },
+    { label: "LATELY", value: "MAKING THINGS / LOOKING AROUND" },
     { label: "LOGS", value: String(blogs.length).padStart(2, "0") },
   ];
 
   const marqueeItems = [
-    "SYSTEMS THINKING",
-    "EXPRESSIVE INTERFACES",
-    "BUILD / BREAK / LEARN",
-    "NOTES FROM THE FIELD",
+    "STILL CURIOUS",
+    "SMALL DETAILS",
+    "THINGS IN PROGRESS",
+    "MORE TO SEE",
   ];
 
   if (route.name === "blog") {
     return (
-      <BlogPage
-        blog={activeBlog}
-        commentsRepo={COMMENTS_REPO}
-      />
+      <Suspense fallback={<div role="status" className="min-h-screen bg-[#050505] px-6 py-24 text-white">Loading post…</div>}>
+        <BlogPage
+          blog={activeBlog}
+          commentsRepo={COMMENTS_REPO}
+        />
+      </Suspense>
     );
   }
 
@@ -346,13 +429,13 @@ const App = () => {
 
       {/* Custom Cursor */}
       <div
+        ref={cursorRef}
         aria-hidden="true"
-        className={`custom-cursor ${isHovering ? 'hovered' : ''}`}
-        style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }}
+        className="custom-cursor"
       />
 
       {/* Progress Bar */}
-      <div className="fixed top-0 left-0 h-1 bg-[#ccff00] z-[100]" style={{ width: `${scrolled}%` }}></div>
+      <div ref={progressRef} className="fixed top-0 left-0 h-1 w-full origin-left bg-[#ccff00] z-[100]" style={{ transform: 'scaleX(0)' }}></div>
 
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-40 p-6 flex justify-between items-center mix-blend-difference">
@@ -443,28 +526,28 @@ const App = () => {
         <div className="max-w-7xl mx-auto w-full relative z-10">
           <div className="mb-4 flex items-center gap-4 text-[#ccff00] font-mono text-sm">
             <span className="w-3 h-3 bg-[#ccff00] animate-pulse"></span>
-            OPEN TO COLLABORATE
+            CHARLES YANG / 杨志
           </div>
           
           <h1
-            className="text-6xl md:text-9xl font-black leading-none tracking-tighter mb-8"
-            aria-label="Creative engineer"
+            className="text-[clamp(2.5rem,10vw,8rem)] font-black leading-none tracking-tighter mb-8"
+            aria-label="Still curious"
             onMouseEnter={handleMouseEnter} 
             onMouseLeave={handleMouseLeave}
           >
-            <span className="glitch-text block" data-text="CREATIVE">CREATIVE</span>
+            <span className="glitch-text block" data-text="STILL">STILL</span>
             <span
               className="glitch-text glitch-text-outline block text-transparent stroke-text"
-              data-text="ENGINEER"
+              data-text="CURIOUS"
               style={{ WebkitTextStroke: '2px #fff' }}
             >
-              ENGINEER
+              CURIOUS
             </span>
           </h1>
           
           <div className="flex flex-col md:flex-row gap-8 md:items-end justify-between">
             <p className="font-mono text-gray-400 max-w-md leading-relaxed border-l-2 border-[#ff00ff] pl-4">
-              Building digital experiences that merge <span className="text-white">clear systems thinking</span> with <span className="text-white">expressive interfaces</span>. I care about the details that make software feel considered.
+              I like to know <span className="text-white">how things work</span>. I care <span className="text-white">how they feel</span>, too. The rest, I'm still figuring out.
             </p>
             
             <div className="flex gap-4">
@@ -516,7 +599,7 @@ const App = () => {
         <section id="about">
           <div className="flex items-end justify-between mb-12 border-b border-[#333] pb-4">
             <h2 className="text-4xl font-bold font-mono flex items-center gap-3">
-              <span className="text-[#ff00ff]">01.</span> INTEL
+              <span className="text-[#ff00ff]">01.</span> ABOUT
             </h2>
             <ArrowUpRight className="text-[#333]" size={40} />
           </div>
@@ -530,11 +613,14 @@ const App = () => {
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-200">About Me</h3>
               <p className="text-gray-400 font-mono leading-relaxed mb-6">
-                I am Charles Yang (杨志), a full-stack developer based in Beijing. I enjoy turning fuzzy ideas into resilient systems and interfaces with a point of view. This site is my public notebook: shipped work, debugging trails, and thoughts still taking shape.
+                I'm Charles Yang (杨志), based in Beijing. I tend to stay with a question a little longer, and spend a little too much time on the details. I like things I can rely on, with a little personality of their own.
               </p>
-              <div className="flex gap-2 mt-auto">
-                <span className="bg-[#222] text-xs px-3 py-1 font-mono rounded-full text-[#ccff00]">Strategy</span>
-                <span className="bg-[#222] text-xs px-3 py-1 font-mono rounded-full text-[#00ffff]">Development</span>
+              <p className="text-gray-400 font-mono leading-relaxed mb-6">
+                I'd like to make a few things worth keeping, and see more of the world along the way. For now, some of what I'm making ends up here.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-auto">
+                <span className="bg-[#222] text-xs px-3 py-1 font-mono rounded-full text-[#ccff00]">Curious by nature</span>
+                <span className="bg-[#222] text-xs px-3 py-1 font-mono rounded-full text-[#00ffff]">Reliable by habit</span>
               </div>
             </div>
 
@@ -562,7 +648,7 @@ const App = () => {
 
             {/* Tech Stack Grid */}
             <div className="col-span-1 md:col-span-2 md:col-start-3 bg-[#111] border border-[#333] p-8">
-              <h3 className="text-sm font-mono text-gray-500 mb-6 uppercase tracking-widest">Weapon of Choice</h3>
+              <h3 className="text-sm font-mono text-gray-500 mb-6 uppercase tracking-widest">Toolbox</h3>
               <div className="grid grid-cols-3 gap-4">
                 {techStack.map((tech) => (
                   <div key={tech.name} className="flex flex-col items-center justify-center p-4 bg-[#1a1a1a] hover:bg-[#222] transition-colors rounded-sm group">
@@ -606,7 +692,7 @@ const App = () => {
                   <h3 className="text-sm font-mono text-gray-500 mb-2 uppercase tracking-widest">
                     Latest Logs
                   </h3>
-                  <div className="text-2xl font-black">Fresh thoughts, hot commits.</div>
+                  <div className="text-2xl font-black">A few things I stopped to write down.</div>
                 </div>
                 <button
                   type="button"
@@ -740,7 +826,7 @@ const App = () => {
                   onMouseEnter={handleMouseEnter} 
                   onMouseLeave={handleMouseLeave}
                 >
-                  Initialize &gt;
+                  View Project &gt;
                 </button>
               </div>
             ))}
@@ -753,9 +839,9 @@ const App = () => {
             <span className="text-[20vw] font-black stroke-text-thick text-[#111]">HELLO</span>
           </div>
           
-          <h2 className="text-5xl md:text-7xl font-black mb-8 relative z-10">Make Something With A Pulse</h2>
+          <h2 className="text-5xl md:text-7xl font-black mb-8 relative z-10">Say Hello</h2>
           <p className="text-xl font-mono text-gray-400 mb-12 max-w-lg mx-auto">
-            Have a sharp problem, an unusual idea, or an open-source project worth pushing forward? My inbox is open.
+            Something here caught your eye? A question, an idea, a place I should see? I'd be glad to hear from you.
           </p>
           
           <a 
@@ -764,7 +850,7 @@ const App = () => {
             onMouseEnter={handleMouseEnter} 
             onMouseLeave={handleMouseLeave}
           >
-            SEND_TRANSMISSION
+            EMAIL ME
           </a>
 
           <div className="mt-20 flex justify-center gap-8">

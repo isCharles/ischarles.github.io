@@ -17,14 +17,17 @@ export function DistortedWordmark({ text = "YANG" }) {
     const ctx = canvas.getContext("2d");
     const source = document.createElement("canvas");
     const sourceCtx = source.getContext("2d");
-    let frameId;
+    if (!ctx || !sourceCtx) return;
+    let frameId = 0;
+    let visible = false;
+    let disposed = false;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let tiles = [];
     let lastPointer = null;
-    let shouldReset = false;
+    let shouldReset = true;
     let width = 0;
     let height = 0;
     let dpr = 1;
-    const startedAt = performance.now();
 
     const drawSource = () => {
       source.width = canvas.width;
@@ -40,12 +43,18 @@ export function DistortedWordmark({ text = "YANG" }) {
       sourceCtx.fillText(text, width / 2, height * 0.55, width * 0.99);
     };
 
-    const draw = (time = performance.now()) => {
-      const elapsed = time - startedAt;
-      drawSource();
+    const draw = () => {
+      frameId = 0;
+      if (disposed || !visible || document.hidden) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.fillStyle = BACKGROUND;
       ctx.fillRect(0, 0, width, height);
+
+      if (shouldReset && tiles.every(tile => Math.abs(tile.x) < 0.08 && Math.abs(tile.y) < 0.08)) {
+        tiles.forEach(tile => { tile.x = 0; tile.y = 0; });
+        ctx.drawImage(source, 0, 0, width, height);
+        return;
+      }
 
       let moving = false;
       tiles.forEach((tile) => {
@@ -58,14 +67,6 @@ export function DistortedWordmark({ text = "YANG" }) {
         if (Math.abs(tile.targetX - tile.x) > 0.08 || Math.abs(tile.targetY - tile.y) > 0.08) {
           moving = true;
         }
-        const wave =
-          Math.sin(elapsed * 0.00075 + tile.left * 0.012 + tile.top * 0.018) * 0.5 +
-          Math.sin(elapsed * 0.00042 + tile.left * 0.004) * 0.5;
-        const hue = wave * 30;
-        const brightness = 1 + wave * 0.13;
-        const saturation = 1.08 + Math.abs(wave) * 0.26;
-
-        ctx.filter = `hue-rotate(${hue}deg) saturate(${saturation}) brightness(${brightness})`;
         ctx.drawImage(
           source,
           tile.left * dpr,
@@ -77,16 +78,15 @@ export function DistortedWordmark({ text = "YANG" }) {
           tile.width,
           tile.height,
         );
-        ctx.filter = "none";
       });
 
-      if (moving || !shouldReset) {
+      if (moving && !reducedMotion.matches) {
         frameId = requestAnimationFrame(draw);
       }
     };
 
     const renderStatic = () => {
-      cancelAnimationFrame(frameId);
+      if (frameId || !visible || document.hidden || disposed) return;
       frameId = requestAnimationFrame(draw);
     };
 
@@ -120,6 +120,7 @@ export function DistortedWordmark({ text = "YANG" }) {
     };
 
     const onPointerMove = (event) => {
+      if (reducedMotion.matches || event.pointerType === 'touch') return;
       const rect = canvas.getBoundingClientRect();
       const pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top };
       const velocityX = lastPointer ? pointer.x - lastPointer.x : 0;
@@ -155,16 +156,45 @@ export function DistortedWordmark({ text = "YANG" }) {
     };
 
     const resizeObserver = new ResizeObserver(resize);
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) renderStatic();
+      else {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
+        onPointerLeave();
+      }
+    });
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
+        onPointerLeave();
+      } else renderStatic();
+    };
+    const onMotionChange = () => {
+      if (reducedMotion.matches) {
+        tiles.forEach(tile => { tile.x = 0; tile.y = 0; });
+        onPointerLeave();
+      }
+    };
     resizeObserver.observe(canvas);
+    visibilityObserver.observe(canvas);
     canvas.addEventListener("pointermove", onPointerMove);
     canvas.addEventListener("pointerleave", onPointerLeave);
-    document.fonts.load("800 120px Syne").then(resize);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    reducedMotion.addEventListener('change', onMotionChange);
+    document.fonts.load("800 120px Syne").then(() => { if (!disposed) resize(); });
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
+      visibilityObserver.disconnect();
       canvas.removeEventListener("pointermove", onPointerMove);
       canvas.removeEventListener("pointerleave", onPointerLeave);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      reducedMotion.removeEventListener('change', onMotionChange);
     };
   }, [text]);
 

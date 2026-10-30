@@ -1,8 +1,8 @@
 export const siteConfig = {
   meta: {
-    title: "Charles Yang | Creative Engineer",
+    title: "Charles Yang | Still Curious",
     description:
-      "Personal site of Charles Yang, a creative engineer building resilient systems and thoughtful digital experiences.",
+      "Charles Yang, based in Beijing. A few things I'm making, a few thoughts along the way. Still curious.",
   },
   brand: {
     // Shown in the top nav + footer
