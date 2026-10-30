@@ -39,6 +39,15 @@ function localized(element, part) {
   return element.getAttribute(`data-${lang}-${part}`) ?? "";
 }
 
+function shotSource(button) {
+  return button.getAttribute(`data-${lang}-src`) ?? button.dataset.src;
+}
+
+function syncShotSource(button) {
+  const thumbnail = button.querySelector("img");
+  if (thumbnail) thumbnail.src = shotSource(button);
+}
+
 function syncDialogText() {
   close.textContent = copy[lang].close;
   zoom.textContent = dialog.classList.contains("is-zoomed") ? copy[lang].fit : copy[lang].zoom;
@@ -66,8 +75,12 @@ function applyLanguage(next, persist = false) {
   for (const thumbnail of document.querySelectorAll("[data-zh-alt]")) {
     thumbnail.alt = localized(thumbnail, "alt");
   }
+  for (const button of document.querySelectorAll(".shot-open")) syncShotSource(button);
   syncDialogText();
-  if (activeShot) syncShotText(activeShot);
+  if (activeShot) {
+    image.src = shotSource(activeShot);
+    syncShotText(activeShot);
+  }
   if (persist) {
     try {
       localStorage.setItem("ardor-lang", lang);
@@ -79,7 +92,7 @@ function applyLanguage(next, persist = false) {
 
 function openShot(button) {
   activeShot = button;
-  image.src = button.dataset.src;
+  image.src = shotSource(button);
   syncShotText(button);
   dialog.classList.remove("is-zoomed");
   syncDialogText();

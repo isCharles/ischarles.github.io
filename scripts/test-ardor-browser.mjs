@@ -40,6 +40,11 @@ try{
    assert.ok((await page.locator('h1').innerText()).includes(expected.hero));
    assert.deepEqual((await page.locator('h2').allInnerTexts()).map(value=>value.trim()),headings[language]);
    assert.equal(await page.getByRole('heading',{level:2}).count(),4,'The tour must show four chapters');
+   const expectedSources=await page.locator('.shot-open').evaluateAll((buttons,current)=>buttons.map(button=>button.getAttribute(`data-${current}-src`)),language);
+   const actualSources=await page.locator('.shot-open img').evaluateAll(images=>images.map(image=>image.getAttribute('src')));
+   assert.deepEqual(actualSources,expectedSources,`All thumbnails must use the ${language} capture set`);
+   if(language==='en')assert.ok(expectedSources.every(src=>src.endsWith('-en.png')),'English captures must use the -en assets');
+   else assert.ok(expectedSources.every(src=>!src.endsWith('-en.png')),'Chinese captures must use the original assets');
  }
 
  async function openAllCaptures(language){
@@ -50,15 +55,17 @@ try{
      const button=shots.nth(index);
      const dialogTitle=await button.getAttribute(`data-${language}-title`);
      const dialogLabel=await button.getAttribute(`data-${language}-label`);
+     const expectedSrc=await button.getAttribute(`data-${language}-src`);
      assert.equal(await button.getAttribute('aria-label'),dialogLabel);
      const thumbnail=button.locator('img');
      await thumbnail.scrollIntoViewIfNeeded();
      assert.equal(await thumbnail.getAttribute('alt'),await thumbnail.getAttribute(`data-${language}-alt`));
+     assert.equal(await thumbnail.getAttribute('src'),expectedSrc,`The ${language} thumbnail must use its own capture`);
      await button.click();
      const dialog=page.locator('#shot-dialog[open]');
      await dialog.waitFor();
      assert.equal((await page.locator('#shot-title').textContent()).trim(),dialogTitle);
-     await page.waitForFunction(()=>{const image=document.querySelector('#shot-image');return image&&image.complete&&image.naturalWidth>0;});
+     await page.waitForFunction(src=>{const image=document.querySelector('#shot-image');return image&&image.complete&&image.naturalWidth>0&&image.getAttribute('src')===src;},expectedSrc);
      assert.equal((await page.locator('#shot-zoom').textContent()).trim(),expected.zoom);
      assert.equal((await page.locator('#shot-close').textContent()).trim(),expected.close);
      await page.locator('#shot-zoom').click();
@@ -123,11 +130,13 @@ try{
  await englishDefault.getByRole('heading',{level:1}).waitFor();
  assert.equal(await englishDefault.locator('html').getAttribute('lang'),'en','A non-Chinese browser should start in English');
  assert.equal((await englishDefault.locator('.brand-note').innerText()).trim(),'AI for a more capable you');
+ await englishDefault.waitForFunction(()=>{const image=document.querySelector('.shot-open img');return image&&image.getAttribute('src')?.endsWith('-en.png');});
+ assert.ok((await englishDefault.locator('.shot-open img').first().getAttribute('src')).endsWith('conversation-en.png'),'English browsers must load the English capture set');
  await englishDefault.close();
 
  await page.goto(base+'/');
  await page.getByRole('button',{name:'Open Ardor project details',exact:true}).click();
  assert.equal(await page.getByRole('link',{name:'PRODUCT TOUR',exact:true}).getAttribute('href'),'/ardor/');
  assert.deepEqual(errors,[]);assert.deepEqual(badRequests,[]);assert.deepEqual(apiRequests,[]);
- console.log(JSON.stringify({languages:['zh','en'],chapters:4,captures:6,viewports:[1440,900,390],errors,badRequests,backendCalls:0}));
+ console.log(JSON.stringify({languages:['zh','en'],chapters:4,captures:6,images:12,viewports:[1440,900,390],errors,badRequests,backendCalls:0}));
 }finally{await browser.close();}

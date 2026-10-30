@@ -14,6 +14,13 @@ for(const heading of ['求职记录','面试复盘','定向学习','Agent 执行
 for(const heading of ['Job search record','Interview review','Targeted learning','Agent execution'])assert.ok(html.includes(heading),`Missing English chapter: ${heading}`);
 assert.equal((html.match(/class="shot-open"/g)||[]).length,6,'The tour must show six product captures');
 assert.equal((html.match(/data-en-title=/g)||[]).length,6,'Every capture needs an English dialog title');
+assert.equal((html.match(/data-zh-src=/g)||[]).length,6,'Every capture needs a Chinese source');
+assert.equal((html.match(/data-en-src=/g)||[]).length,6,'Every capture needs an English source');
+const zhSources=[...html.matchAll(/data-zh-src="([^"]+)"/g)].map(match=>match[1]);
+const enSources=[...html.matchAll(/data-en-src="([^"]+)"/g)].map(match=>match[1]);
+assert.equal(new Set([...zhSources,...enSources]).size,12,'The two language sets must not share assets');
+for(const src of enSources)assert.match(src,/-en\.png$/,`English captures must use their own asset: ${src}`);
+for(const src of zhSources)assert.ok(!src.includes('-en.png'),`Chinese captures must not point at English assets: ${src}`);
 assert.equal((html.match(/href="https:\/\/github\.com\/isCharles\/project-ardor"/g)||[]).length,1,'GitHub must have exactly one entrance');
 assert.ok(!html.includes('class="down"')&&!html.includes('class="nav-product"')&&!html.includes('class="meta"'),'Duplicate jump links and the extra meta line must stay removed');
 assert.ok(!html.includes('role="tab"'),'The old tabbed feature list must stay removed');
@@ -33,13 +40,16 @@ for(const name of ['ardor-mark.svg','ardor-mark-32.png','ardor-mark-180.png']){
 const js=await readFile('dist/ardor/showcase.js','utf8');
 assert.ok(!/\b(fetch|XMLHttpRequest|WebSocket)\s*\(/.test(js),'Static tour must never call a backend');
 assert.ok(js.includes('applyLanguage')&&js.includes('ardor-lang'),'The language switch must be implemented locally');
+assert.ok(js.includes('shotSource')&&js.includes('data-${lang}-src'),'The language switch must select the matching capture set');
 assert.ok(js.includes('Switch to Chinese')&&js.includes('切换为英文'),'Both language switch labels must exist');
 
 for(const name of ['conversation','resume','latex','interview','learning','trace']){
-  const path=`dist/ardor/screenshots/${name}.png`;
-  const file=await readFile(path);
-  assert.equal(file.subarray(1,4).toString(),'PNG',`${name} must be a PNG`);
-  assert.ok(file.readUInt32BE(16)>=2800 && file.readUInt32BE(20)>=1800,`${name} must be a high-resolution capture`);
-  assert.ok((await stat(path)).size<2500000,`${name} exceeds the static asset budget`);
+  for(const suffix of ['','-en']){
+    const path=`dist/ardor/screenshots/${name}${suffix}.png`;
+    const file=await readFile(path);
+    assert.equal(file.subarray(1,4).toString(),'PNG',`${name}${suffix} must be a PNG`);
+    assert.ok(file.readUInt32BE(16)>=2800 && file.readUInt32BE(20)>=1800,`${name}${suffix} must be a high-resolution capture`);
+    assert.ok((await stat(path)).size<2500000,`${name}${suffix} exceeds the static asset budget`);
+  }
 }
-console.log('Ardor: bilingual entry, official slogan, cache-busted mark, four-chapter tour, six high-resolution captures, no backend dependency verified.');
+console.log('Ardor: bilingual entry, official slogan, cache-busted mark, four-chapter tour, six Chinese and six English high-resolution captures, no backend dependency verified.');
