@@ -13,8 +13,48 @@ let browser;
 try {
   for(let i=0;i<100;i++){try{if((await fetch(base+'/login')).ok)break;}catch{}await new Promise(r=>setTimeout(r,150));}
   browser=await chromium.launch({headless:true,...(process.env.ARDOR_CAPTURE_BROWSER ? {channel:process.env.ARDOR_CAPTURE_BROWSER}:{})});
-  const context=await browser.newContext({viewport:{width:1440,height:960},deviceScaleFactor:1});
+  const context=await browser.newContext({viewport:{width:1440,height:960},deviceScaleFactor:2});
   await context.addInitScript(()=>localStorage.setItem('ardor:locale','zh-CN'));
+  // The LaTeX workspace renders a real page image; draw a synthetic A4 page so
+  // the capture never needs a stored PDF or a user's resume.
+  const previewPage=await context.newPage();
+  await previewPage.setViewportSize({width:794,height:1123});
+  await previewPage.setContent(`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><style>
+    html,body{margin:0;background:#fff;color:#1f2937;font-family:"Segoe UI","Microsoft YaHei",sans-serif}
+    .page{width:794px;height:1123px;padding:62px 72px;box-sizing:border-box;background:#fff}
+    h1{font-size:31px;margin:0;letter-spacing:.02em}
+    .role{font-size:14px;color:#4b5563;margin:5px 0 0}
+    .contact{font-size:10.5px;color:#6b7280;margin-top:9px;display:flex;gap:14px}
+    h2{font-size:10px;letter-spacing:.16em;color:#6b7280;text-transform:uppercase;border-bottom:1px solid #e5e7eb;padding-bottom:5px;margin:24px 0 9px}
+    p,li{font-size:11.5px;line-height:1.7;color:#374151;margin:3px 0}
+    ul{margin:3px 0 0;padding-left:16px}
+    .row{display:flex;justify-content:space-between;gap:16px;margin-top:8px}
+    .row strong{font-size:12.5px;color:#111827}.row span{font-size:10.5px;color:#6b7280;white-space:nowrap}
+    .tag{display:inline-block;border:1px solid #dbeafe;background:#f5f9ff;color:#1d4ed8;border-radius:4px;padding:2px 6px;font-size:10px;margin:2px 4px 0 0}
+  </style></head><body><main class="page">
+    <h1>林澄</h1><p class="role">数据平台工程师</p>
+    <p class="contact"><span>上海</span><span>lin.cheng@example.invalid</span><span>github.com/lin-cheng-demo</span></p>
+    <h2>概述</h2>
+    <p>三年数据开发经历，负责离线数仓与实时指标链路。关注消息幂等、任务恢复与数据质量，习惯把失败路径和验证方式写清楚。</p>
+    <h2>工作经历</h2>
+    <div class="row"><strong>澄光物流 · 数据平台工程师</strong><span>2025.06 — 至今</span></div>
+    <ul><li>维护实时指标链路，围绕消费重试、幂等写入与数据质量告警补齐失败恢复路径。</li><li>拆分离线补算与实时消费的边界，统一指标口径与延迟观测方式。</li></ul>
+    <div class="row"><strong>北岭零售 · 数据开发实习生</strong><span>2024.03 — 2024.08</span></div>
+    <ul><li>参与离线数仓分层与报表任务迁移，整理任务依赖和失败重跑说明。</li></ul>
+    <h2>项目</h2>
+    <div class="row"><strong>实时指标看板 · 消息幂等与恢复</strong><span>2027.08 — 2028.02</span></div>
+    <ul><li>梳理业务提交与消费位点提交之间的失败窗口，使用稳定业务键与唯一约束去重。</li><li>为重复投递和补算任务保留处理记录，补充恢复后的核对步骤。</li></ul>
+    <div class="row"><strong>离线任务质量治理</strong><span>2026.11 — 2027.05</span></div>
+    <ul><li>为关键报表增加校验规则与告警降噪，按影响范围区分阻断和提醒。</li></ul>
+    <h2>教育</h2>
+    <div class="row"><strong>江湾信息学院 · 信息管理 · 本科</strong><span>2020.09 — 2024.06</span></div>
+    <h2>技能</h2>
+    <p><span class="tag">SQL</span><span class="tag">Kafka</span><span class="tag">Flink</span><span class="tag">Redis</span><span class="tag">数据建模</span><span class="tag">任务调度</span></p>
+  </main></body></html>`);
+  await previewPage.evaluate(()=>document.fonts.ready);
+  const latexPageImage=await previewPage.screenshot({type:'png'});
+  await previewPage.close();
+  await context.route('**/latex-api/**',route=>route.fulfill({status:200,headers:{'Content-Type':'image/png','X-Page-Count':'1'},body:latexPageImage}));
   const date='2028-04-16T09:00:00Z';
   const conv={id:'showcase',title:'为下一轮技术面试做准备',createdAt:date,updatedAt:date,pinned:true};
   const report={id:'analysis',resumeId:'resume',modelName:'Demo model',createdAt:date,analysis:{
@@ -53,13 +93,18 @@ try {
     {severity:'B',category:'可读性',dimensionId:'clarity',problem:'三个项目使用相同的泛化开头',why:'读者难以快速识别各项目解决的问题。',action:'每个项目用业务对象、约束与本人结果开头。'},
     {severity:'C',category:'表达细节',dimensionId:'clarity',problem:'吞吐量、时间单位和日期格式不统一',why:'降低对指标的信任，也增加阅读负担。',action:'统一 ms、条/秒与 YYYY.MM，说明指标是否为峰值。'}
   ];
+  const reportHistory=[
+    report,
+    {id:'analysis-south',resumeId:'resume',modelName:'Demo model',createdAt:'2028-04-08T09:00:00Z',analysis:{...report.analysis,overallScore:59,summary:'实时开发方向与岗位要求较接近，消息链路和 SQL 排查有具体例子。下一步应把消费失败窗口、指标口径和恢复验证写得更可核对。',scoringContext:{...report.analysis.scoringContext,targetRole:'南屿数据 · 实时数据开发工程师'}}},
+    {id:'analysis-general',resumeId:'resume',modelName:'Demo model',createdAt:'2028-04-02T09:00:00Z',analysis:{...report.analysis,overallScore:64,summary:'通用数据平台方向的基础完整，项目与岗位相关。建议先把结果证据与个人贡献分开，再压缩重复的组件列表。',scoringContext:{...report.analysis.scoringContext,targetRole:'数据平台工程师（通用）'}}}
+  ];
   const historyTitles=['澄光物流二面准备','实时链路复盘与改写','课程优先级重新安排','复习任务与日历对账','南屿数据一面纪要','简历的岗位适配建议','本周投递节奏回顾','消息幂等与重试边界','取消重复的学习安排','把项目指标讲清楚','周末复习计划','检查课程练习反馈'];
   const conversations=[conv,...historyTitles.map((title,index)=>({...conv,id:'history-'+index,title,pinned:false}))];
   const messages=[
     {id:'earlier-user',role:'USER',content:'我已整理好澄光物流的一面纪要，下一轮偏系统设计，先别重新生成课程。',createdAt:'2028-04-15T10:00:00Z'},
     {id:'earlier-assistant',role:'ASSISTANT',content:'已保存这轮上下文。后续优先复用现有课程，并把“面试来源”和“准备目标”分开，避免把一面的薄弱题误当成下一轮面试安排。',createdAt:'2028-04-15T10:00:06Z'},
     {id:'u',role:'USER',content:'结合我的日历、面试进度、课程和记忆卡，看看未来一周怎么安排。Redis 已完成的课程不要重建，先只读分析。',createdAt:date},
-    {id:'a',role:'ASSISTANT',content:'交叉核对完成。我读取了面试流程、课程、日历和记忆卡，尚未修改任何安排。\n\n**先区分：哪些是面试准备，哪些只是历史遗留**\n\n- 你有 **6 门课程**：Redis 已完成；线程池待巩固；JVM 与消息幂等学习中；SQL 和链路可观测性尚未开始。日历里有 5 条未完成学习安排，与这 5 门课程对应。\n- 澄光物流的系统设计二面在 **4 月 21 日 14:00**。实时链路与消息幂等来自它的一面，应优先复用现有课程，不再新建同主题。南屿数据仍在等一面结果，不必按“明天面试”的紧急程度安排。\n- 线程池最近练习 **68 分、2 次提交**，问题在拒绝策略与任务补偿；JVM 已读讲解但尚未提交练习，不能当成已掌握。\n\n**真正需要处理的是节奏和冲突**\n\n1. 先补消息幂等，再练系统设计：4 月 17 日晚上完成消费重试与重复写入的练习，18 日把它放回实时指标链路中重答。不要只背组件名。\n2. 日历有一处冲突：4 月 18 日 19:00 的线程池复习与固定小组例会重叠；建议移到同日 20:30，固定安排不动。\n3. 13 张记忆卡已到期：其中 5 张涉及消息与一致性、4 张是 JVM、4 张是 SQL。每天安排 15 分钟集中复习，不必拆成 13 条待办。\n4. Redis 已完成，保留不重建：最近一次 86 分的练习记录和原讲解都保留，只需按原计划在 4 月 19 日复习。\n\n建议顺序：**消息幂等 → 线程池补偿 → 系统设计重答 → SQL 查漏补缺**。如果你同意，我再修改那一条冲突的日程，其余记录保持不变。',createdAt:date,runTrace:JSON.stringify({status:'COMPLETED',elapsedMs:26900,steps:[{label:'读取面试流程与下一轮安排',elapsedMs:16,status:'COMPLETED'},{label:'读取 6 门学习课程与练习记录',elapsedMs:23,status:'COMPLETED'},{label:'读取日历与固定安排',elapsedMs:18,status:'COMPLETED'},{label:'读取 13 张到期记忆卡',elapsedMs:21,status:'COMPLETED'},{label:'交叉核对时间与来源',elapsedMs:41,status:'COMPLETED'}]})}
+    {id:'a',role:'ASSISTANT',content:'交叉核对完成。我读取了面试流程、课程、日历和记忆卡，尚未修改任何安排。\n\n**先区分：哪些是面试准备，哪些只是历史遗留**\n\n- 你有 **6 门课程**：Redis 已完成；线程池待巩固；JVM 与消息幂等学习中；SQL 和链路可观测性尚未开始。日历里有 5 条未完成学习安排，与这 5 门课程对应。\n- 澄光物流的系统设计二面在 **4 月 21 日 14:00**。实时链路与消息幂等来自它的一面，应优先复用现有课程，不再新建同主题。南屿数据仍在等一面结果，不必按“明天面试”的紧急程度安排。\n- 线程池最近练习 **68 分、2 次提交**，问题在拒绝策略与任务补偿；JVM 已读讲解但尚未提交练习，不能当成已掌握。\n\n**真正需要处理的是节奏和冲突**\n\n1. 先补消息幂等，再练系统设计：4 月 17 日晚上完成消费重试与重复写入的练习，18 日把它放回实时指标链路中重答。不要只背组件名。\n2. 日历有一处冲突：4 月 18 日 19:00 的线程池复习与固定小组例会重叠；建议移到同日 20:30，固定安排不动。\n3. 13 张记忆卡已到期：其中 5 张涉及消息与一致性、4 张是 JVM、4 张是 SQL。每天安排 15 分钟集中复习，不必拆成 13 条待办。\n4. Redis 已完成，保留不重建：最近一次 86 分的练习记录和原讲解都保留，只需按原计划在 4 月 19 日复习。\n\n建议顺序：**消息幂等 → 线程池补偿 → 系统设计重答 → SQL 查漏补缺**。如果你同意，我再修改那一条冲突的日程，其余记录保持不变。',createdAt:date,runId:'demo-run',runTrace:JSON.stringify({status:'COMPLETED',elapsedMs:26900,steps:[{label:'读取面试流程与下一轮安排',elapsedMs:16,status:'COMPLETED'},{label:'读取 6 门学习课程与练习记录',elapsedMs:23,status:'COMPLETED'},{label:'读取日历与固定安排',elapsedMs:18,status:'COMPLETED'},{label:'读取 13 张到期记忆卡',elapsedMs:21,status:'COMPLETED'},{label:'交叉核对时间与来源',elapsedMs:41,status:'COMPLETED'}]})}
   ];
   const plans=[
     {...plan,concept:'消息幂等与消费重试边界',reason:'来源：澄光物流数据平台一面。候选人能说明至少一次投递，但未解释业务写入与消费位点提交之间的失败窗口。用于准备 4 月 21 日的系统设计二面。',originKind:'INTERVIEW_QUESTION',originResourceId:'q2',originRecordId:'recap',originInterviewId:'process',targetInterviewId:'process',targetRoundId:'r2',status:'IN_PROGRESS',attemptCount:1,lastScore:62,scheduledAt:'2028-04-17T11:00:00Z',lesson:{...plan.lesson,summary:'从一次消费重试开始，画出消息、位点与业务写入的三个状态，明确“只处理一次”到底在哪一层成立。',keyPoints:['消息 ID 与业务幂等键不是同一个身份。','业务提交成功、消费位点提交失败，会触发重复投递。','checkpoint 与外部事务并不会自动覆盖所有下游副作用。'],explanation:'## 先画清三个提交点\n\n一次消费至少包含消息拉取、业务写入和位点提交。只有明确它们的顺序，才能讨论失败后会发生什么。\n\n### 一个容易被忽略的窗口\n\n数据库已经提交，但进程在提交消费位点前退出。重启后同一条消息会再次到达。此时仅靠内存里的去重集合并不可靠。\n\n### 把幂等落到业务边界\n\n1. 使用稳定业务键或唯一约束识别同一次变更。\n2. 在同一事务中写入业务结果与处理记录。\n3. 对失败重试和重复请求分别记录，不能把成功重放当成新的业务写入。',example:'场景：订单已写入数据库，消费者在确认位点前崩溃。请说明重启后如何避免重复增加库存占用。',pitfalls:['不要将 Exactly-once 扩大成所有系统之间的全局保证。','删除幂等记录前必须考虑消息保留时间与最晚重试窗口。']},exercises:[{question:'业务事务提交后、位点提交前进程退出，会发生什么？你会如何验证恢复结果？',type:'SCENARIO'},{question:'同一请求 ID 被用于两种不同业务操作时，去重键应如何设计？',type:'SHORT_ANSWER'}]},
@@ -69,6 +114,8 @@ try {
     {...plan,id:'plan5',concept:'实时链路的可观测性设计',status:'SCHEDULED',attemptCount:0,lastScore:null,scheduledAt:'2028-04-20T01:00:00Z'},
     {...plan,id:'plan6',concept:'Redis 限流与 Lua 原子性',status:'COMPLETED',attemptCount:3,lastScore:86,nextReviewAt:'2028-04-19T01:00:00Z',completedAt:'2028-04-14T12:00:00Z'}
   ];
+  const latexProject={id:'latex-demo',title:'林澄 — 数据平台工程师',mainFile:'main.tex',currentRevision:7,frozenRevision:null,frozenResumeId:null,createdAt:'2028-03-30T09:00:00Z',updatedAt:date};
+  const latexSnapshot={projectId:'latex-demo',title:latexProject.title,mainFile:'main.tex',revisionNo:7,files:{'main.tex':'\\documentclass{article}\\begin{document}林澄\\end{document}'},sha256:'demo-latex-sha',frozenRevision:null,frozenResumeId:null,createdAt:'2028-03-30T09:00:00Z'};
   recap.title='澄光物流 · 数据平台一面完整复盘';
   recap.overview='本轮围绕实时指标链路展开，依次追问消息投递、幂等写入、SQL 优化、缓存与任务恢复。候选人能解释组件职责，但对业务提交与消费确认的失败窗口、指标口径及恢复验证还不够具体。下一轮准备应优先补正确性边界，再完善架构取舍。';
   recap.strengths=['能区分离线补算与实时消费的约束，解释为什么不直接共用一套链路。','SQL 排查有明确步骤：慢日志、执行计划、索引选择与数据分布。','知道重试不能自动保证幂等，能够描述任务持久化状态。'];
@@ -96,23 +143,29 @@ try {
   if(plans.length!==6||calendarTasks.length!==5||memoryCards.length!==13||recap.questions.length!==8||report.analysis.issues.length!==7)throw new Error('Scenario relationships must stay coherent');
   let cursor=0;
   const descriptors=[['root','RUN','agent.run',26900],['context','CONTEXT','加载可信用户与材料上下文',42],['llm1','LLM','识别跨模块规划请求',2300],['opps','TOOL','list_opportunities',16],['plans','TOOL','list_learning_plans',23],['tasks','TOOL','list_calendar_tasks',18],['rules','TOOL','list_recurring_tasks',11],['llm2','LLM','交叉核对课程、面试与时间',7400],['cards','TOOL','list_memory_cards',21],['detail','TOOL','get_learning_plan',17],['llm3','LLM','评估冲突与复习优先级',6100],['phase','THOUGHT','保留已完成记录，暂不写入',47],['llm4','LLM','生成有来源的规划建议',10805]];
-  const spans=descriptors.map(([id,kind,name,durationMs])=>{const startedAt=new Date(Date.parse(date)+cursor).toISOString();if(id!=='root')cursor+=durationMs;return {id,runId:'demo-run',parentSpanId:id==='root'?null:'root',kind,name,status:'COMPLETED',startedAt,finishedAt:new Date(Date.parse(startedAt)+durationMs).toISOString(),durationMs,model:kind==='LLM'?'deepseek-v4-flash':null,promptVersion:null,inputTokens:kind==='LLM'?3800:null,outputTokens:kind==='LLM'?640:null,errorCode:null,attributes:{}};});
+  const spans=descriptors.map(([id,kind,name,durationMs])=>{const startedAt=new Date(Date.parse(date)+cursor).toISOString();if(id!=='root')cursor+=durationMs;return {id,runId:'demo-run',parentSpanId:id==='root'?null:'root',kind,name,status:'COMPLETED',startedAt,finishedAt:new Date(Date.parse(startedAt)+durationMs).toISOString(),durationMs,model:kind==='LLM'?'deepseek-v4-flash':null,promptVersion:null,inputTokens:kind==='LLM'?3800:null,outputTokens:kind==='LLM'?640:null,cacheReadInputTokens:kind==='LLM'?2800:null,cacheCreationInputTokens:kind==='LLM'?0:null,errorCode:null,attributes:{}};});
   await context.route('**/api/**',async route=>{
     const p=new URL(route.request().url()).pathname;
     let body=[];
     if(p==='/api/auth/me')body={id:'demo',email:'demo@example.invalid',admin:false};
     else if(p==='/api/auth/csrf')body={token:'demo',headerName:'X-CSRF-TOKEN'};
     else if(p==='/api/profile')body={displayName:'林澄',headline:'数据平台工程师',targetRoles:['数据平台工程师'],timezone:'Asia/Shanghai'};
-    else if(p==='/api/profile/sidebar')body={userId:'demo',hrefs:['/app','/app/job-search','/app/learning','/app/calendar','/app/resumes'],revision:1,configured:true};
+    else if(p==='/api/profile/sidebar')body={userId:'demo',hrefs:['/app','/app/job-search','/app/learning','/app/calendar','/app/resumes','/app/latex'],revision:1,configured:true};
     else if(p==='/api/background-tasks/summary')body={activeCount:0,unreadByModule:{}};
     else if(p==='/api/agent/models')body=[{id:'PRIMARY',label:'deepseek-v4-flash',provider:'OPENAI_COMPATIBLE',available:true,nativeControl:true}];
-    else if(p==='/api/agent/runs/demo-run/trace')body={runId:'demo-run',conversationId:'showcase',status:'COMPLETED',durationMs:26900,totals:{llmCalls:4,toolCalls:6,loopRounds:3,inputTokens:15200,outputTokens:2560},spans};
-    else if(p==='/api/agent/conversations/showcase/trace')body={conversationId:'showcase',title:conv.title,runs:[{runId:'demo-run',message:messages[2].content,assistantMessage:messages[3].content,status:'COMPLETED',createdAt:date,updatedAt:date,spans}]};
+    else if(p==='/api/agent/features')body=[];
+    else if(p==='/api/agent/tools/schemas')body=[];
+    else if(p==='/api/ai-jobs')body=[];
+    else if(p==='/api/agent/runs/demo-run/trace')body={runId:'demo-run',conversationId:'showcase',status:'COMPLETED',durationMs:26900,totals:{llmCalls:4,toolCalls:6,loopRounds:3,inputTokens:15200,outputTokens:2560,cacheReadInputTokens:8400,cacheCreationInputTokens:0,cacheUsageMissingCalls:0},spans};
+    else if(p==='/api/agent/conversations/showcase/trace')body={conversationId:'showcase',title:conv.title,nextBefore:null,runs:[{runId:'demo-run',message:messages[2].content,assistantMessage:messages[3].content,thinkingOutput:null,status:'COMPLETED',createdAt:date,updatedAt:date,spans}]};
     else if(p==='/api/agent/reasoning')body={nativeControl:true};
     else if(p==='/api/agent/permissions')body={globalLevel:0,modules:[]};
     else if(p==='/api/agent')body={conversationId:conv.id,llmConfigured:true,displayName:'林澄',conversations,archivedConversations:[],memory:{content:'目标：数据平台工程师；保留已完成课程。',updatedAt:date},messages};
-    else if(p==='/api/resumes')body=[{id:'resume',originalFilename:'林澄_数据平台工程师_v3.pdf',parseStatus:'PARSED',createdAt:date,sizeBytes:132096,analysisId:'analysis',analysisStatus:'COMPLETED',analysisError:null,overallScore:67},{id:'resume-old',originalFilename:'林澄_实时开发_v2.pdf',parseStatus:'PARSED',createdAt:'2028-04-10T09:00:00Z',sizeBytes:119808,analysisId:'old-analysis',analysisStatus:'COMPLETED',overallScore:59},{id:'resume-archive',originalFilename:'林澄_数仓开发_v1.pdf',parseStatus:'PARSED',createdAt:'2028-03-22T09:00:00Z',sizeBytes:114688,analysisId:null,analysisStatus:null}];
+    else if(p==='/api/resumes')body=[{id:'resume',originalFilename:'林澄_数据平台工程师_v3.pdf',contentType:'application/pdf',checksumSha256:'demo',parseStatus:'PARSED',createdAt:date,sizeBytes:132096,analysisId:'analysis',analysisStatus:'COMPLETED',analysisError:null,overallScore:67,primary:true,displayAnalysisId:'analysis'},{id:'resume-old',originalFilename:'林澄_实时开发_v2.pdf',contentType:'application/pdf',checksumSha256:'demo',parseStatus:'PARSED',createdAt:'2028-04-10T09:00:00Z',sizeBytes:119808,analysisId:'old-analysis',analysisStatus:'COMPLETED',analysisError:null,overallScore:59,primary:false,displayAnalysisId:'old-analysis'},{id:'resume-archive',originalFilename:'林澄_数仓开发_v1.pdf',contentType:'application/pdf',checksumSha256:'demo',parseStatus:'PARSED',createdAt:'2028-03-22T09:00:00Z',sizeBytes:114688,analysisId:null,analysisStatus:null,analysisError:null,overallScore:null,primary:false,displayAnalysisId:null}];
+    else if(p==='/api/resumes/resume/analysis/history')body=reportHistory;
     else if(p==='/api/resumes/resume/analysis')body=report;
+    else if(p==='/api/latex/projects')body=[latexProject];
+    else if(p==='/api/latex/projects/latex-demo')body=latexSnapshot;
     else if(p==='/api/learning-plans')body=plans;
     else if(p==='/api/learning-plans/plan')body=plans[0];
     else if(p==='/api/interview-recaps')body=[recap];
@@ -122,26 +175,34 @@ try {
     else if(p==='/api/calendar/tasks')body=calendarTasks;
     else if(p==='/api/calendar/series')body=[{id:'weekly',title:'数据平台小组例会',summary:'每周二 19:00',status:'ACTIVE',upcoming:[]}];
     else if(p==='/api/memory-cards')body=memoryCards;
-    else if(p==='/api/agent/runs/latest'||p.startsWith('/api/ai-jobs'))return route.fulfill({status:404,json:{message:'No active demo job'}});
+    else if(p==='/api/applications/rhythm')return route.fulfill({status:404,json:{message:'No synthetic rhythm'}});
+    else if(p==='/api/agent/runs/latest')return route.fulfill({status:404,json:{message:'No active demo job'}});
     await route.fulfill({json:body});
   });
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  for(const [name,path,ready] of [['conversation','/app?conversationId=showcase','交叉核对完成'],['resume','/app/resumes','当前竞争力'],['learning','/app/learning?id=plan','消息幂等'],['interview','/app/recaps?selected=recap','数据平台技术面试'],['trace','/app/agent-runs/demo-run?conversation=showcase','对话轨迹']]){
-    await page.goto(base+path);await page.getByText(name==='interview'?'澄光物流 · 数据平台一面完整复盘':ready,{exact:false}).first().waitFor();
-    if(name==='conversation'){await page.getByText('交叉核对完成。',{exact:false}).scrollIntoViewIfNeeded();}
-    if(name==='trace'){await page.getByRole('button',{name:'图',exact:true}).click();await page.locator('[data-trace-node]').first().waitFor();}
-    await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(500);
-    await page.screenshot({path:out+'/'+name+'.png',animations:'disabled'});
-    if(name==='resume'){await page.goto(base+'/app/resumes?selected=resume');await page.getByText('A 区 · 最该改',{exact:true}).waitFor();}
-    if(name!=='conversation'){
-      await page.setViewportSize({width:1440,height:{resume:4400,interview:3600,learning:2200,trace:1800}[name]});
-      await page.evaluate(()=>window.scrollTo(0,0));await page.waitForTimeout(300);
-      const publicText=await page.locator('body').innerText();
-      if(publicText.includes('fixture@')||publicText.includes('Synthetic agent reply'))throw new Error('Unfinished fixture text in capture');
-      await page.screenshot({path:out+'/'+name+'-detail.png',fullPage:true,animations:'disabled'});
-      await page.setViewportSize({width:1440,height:960});
+  const shots=[
+    ['conversation','/app?conversation=showcase',/面试、课程与日历交叉分析/],
+    ['resume','/app/resumes','当前竞争力'],
+    ['latex','/app/latex',/林澄 — 数据平台工程师|写简历/],
+    ['interview','/app/recaps?selected=recap','澄光物流 · 数据平台一面完整复盘'],
+    ['learning','/app/learning?id=plan','消息幂等'],
+    ['trace','/app/agent-runs/demo-run?conversation=showcase',/多轮对话轨迹|对话轨迹/]
+  ];
+  for(const [name,path,ready] of shots){
+    await page.setViewportSize({width:1440,height:960});
+    await page.goto(base+path);
+    await page.getByText(ready,{exact:false}).first().waitFor({timeout:60000});
+    if(name==='conversation')await page.getByText('交叉核对完成。',{exact:false}).scrollIntoViewIfNeeded();
+    if(name==='latex'){
+      const preview=page.locator('img[alt="当前简历"]');
+      await preview.waitFor();
+      await page.waitForFunction(()=>{const image=document.querySelector('img[alt="当前简历"]');return image&&image.complete&&image.naturalWidth>0;});
     }
+    await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(600);
+    const publicText=await page.locator('body').innerText();
+    if(publicText.includes('fixture@')||publicText.includes('Synthetic agent reply'))throw new Error('Unfinished fixture text in capture');
+    await page.screenshot({path:out+'/'+name+'.png',animations:'disabled'});
   }
-  console.log(JSON.stringify({screenshots:5,errors}));
+  console.log(JSON.stringify({screenshots:shots.length,errors}));
   if(errors.length)throw new Error(errors.join('\n'));
 }finally{await browser?.close();server.kill();}
