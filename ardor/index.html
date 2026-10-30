@@ -3,28 +3,45 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ardor — AI 求职工作台 · Charles Yang</title>
-  <meta name="description" content="Ardor 是一个 AI 求职工作台：把简历、面试记录、学习练习和日历连成一条可以继续的准备路径。浏览真实产品界面，无需登录。">
+  <meta name="description" content="Ardor 是一个 AI 求职工作台：把简历、面试记录、学习练习和日历连成一条可以继续的准备路径。浏览真实产品界面，无需登录。" data-zh="Ardor 是一个 AI 求职工作台：把简历、面试记录、学习练习和日历连成一条可以继续的准备路径。浏览真实产品界面，无需登录。" data-en="Ardor is an AI career workspace that connects your resume, interview notes, learning practice and calendar into one preparation path. Browse the real product UI without signing in.">
   <meta name="theme-color" content="#fbfcff">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Ardor — 把求职过程，变成下一次准备的起点">
-  <meta property="og:description" content="保存求职与面试记录，把薄弱点带进学习，再让 Agent 把下一步执行出来。浏览真实产品界面，无需登录。">
+  <meta property="og:title" content="Ardor — 把求职过程，变成下一次准备的起点" data-zh="Ardor — 把求职过程，变成下一次准备的起点" data-en="Ardor — Turn your job search into your next preparation">
+  <meta property="og:description" content="保存求职与面试记录，把薄弱点带进学习，再让 Agent 把下一步执行出来。浏览真实产品界面，无需登录。" data-zh="保存求职与面试记录，把薄弱点带进学习，再让 Agent 把下一步执行出来。浏览真实产品界面，无需登录。" data-en="Keep your applications and interviews, turn weak spots into learning, then let the agent execute the next step. Browse the real product UI without signing in.">
   <meta property="og:image" content="https://ischarlesyang.com/ardor/screenshots/conversation.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" href="/ardor/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/ardor/ardor-mark.svg" type="image/svg+xml">
+  <link rel="icon" href="/ardor/ardor-mark-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/ardor/ardor-mark-180.png">
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem("ardor-lang");
+        if (saved === "en" || (!saved && !(navigator.language || "zh").toLowerCase().startsWith("zh"))) {
+          document.documentElement.lang = "en";
+        }
+      } catch {
+        // Storage can be unavailable in private or embedded contexts.
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="/ardor/showcase.css">
   <script src="/ardor/showcase.js" defer></script>
 </head>
 <body>
-  <a class="skip" href="#product">跳到产品界面</a>
+  <a class="skip" href="#product"><span class="lang-zh" lang="zh-CN">跳到产品界面</span><span class="lang-en" lang="en">Skip to product screens</span></a>
   <header class="topbar">
     <div class="wrap topbar-inner">
-      <a class="brand" href="/ardor/" aria-label="Ardor 展示首页">
-        <img src="/ardor/favicon.svg" width="26" height="26" alt="">
-        <span>Ardor</span>
-        <span class="brand-note">AI CAREER WORKSPACE</span>
+      <a class="brand" href="/ardor/">
+        <img src="/ardor/ardor-mark.svg" width="26" height="26" alt="">
+        <span class="brand-text">
+          <span class="brand-name">Ardor</span>
+          <span class="brand-note">AI for a more capable you</span>
+        </span>
       </a>
-      <nav aria-label="页面导航">
-        <a href="#product">界面</a>
+      <nav aria-label="页面导航" data-zh-label="页面导航" data-en-label="Page navigation">
+        <a class="nav-product" href="#product"><span class="lang-zh" lang="zh-CN">界面</span><span class="lang-en" lang="en">Product</span></a>
+        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="切换为英文">EN</button>
         <a href="https://github.com/isCharles/project-ardor" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
       </nav>
     </div>
@@ -32,38 +49,41 @@
 
   <main id="main">
     <section class="hero wrap">
-      <h1>把求职过程，<br><span>变成下一次准备的起点。</span></h1>
+      <h1>
+        <span class="lang-zh" lang="zh-CN">把求职过程，<br><span class="accent">变成下一次准备的起点。</span></span>
+        <span class="lang-en" lang="en">Turn your job search<br><span class="accent">into your next preparation.</span></span>
+      </h1>
       <div class="hero-foot">
-        <p>Ardor 是一个 AI 求职工作台。它把简历、面试记录、学习练习和日历连在一起，让准备接着上一次继续。</p>
-        <a class="down" href="#product">看产品界面 <span aria-hidden="true">↓</span></a>
+        <p><span class="lang-zh" lang="zh-CN">Ardor 是一个 AI 求职工作台。它把简历、面试记录、学习练习和日历连在一起，让准备接着上一次继续。</span><span class="lang-en" lang="en">Ardor is an AI career workspace. It connects your resume, interview notes, learning practice and calendar, so each preparation picks up where the last one left off.</span></p>
+        <a class="down" href="#product"><span class="lang-zh" lang="zh-CN">看产品界面</span><span class="lang-en" lang="en">Explore the product</span> <span aria-hidden="true">↓</span></a>
       </div>
-      <p class="meta">真实产品界面 · 完全虚构的演示数据</p>
+      <p class="meta"><span class="lang-zh" lang="zh-CN">真实产品界面 · 完全虚构的演示数据</span><span class="lang-en" lang="en">Real product UI · entirely fictional demo data</span></p>
     </section>
 
     <figure class="shot hero-shot wrap">
-      <button class="shot-open" type="button" data-src="/ardor/screenshots/conversation.png" data-title="对话" aria-label="放大 Ardor 对话界面">
-        <img src="/ardor/screenshots/conversation.png" width="2880" height="1920" fetchpriority="high" alt="Ardor 对话界面：根据面试、课程与日历给出准备建议">
+      <button class="shot-open" type="button" data-src="/ardor/screenshots/conversation.png" data-zh-title="对话" data-en-title="Conversation" data-zh-label="放大 Ardor 对话界面" data-en-label="Enlarge the Ardor conversation screen" aria-label="放大 Ardor 对话界面">
+        <img src="/ardor/screenshots/conversation.png" width="2880" height="1920" fetchpriority="high" alt="Ardor 对话界面：根据面试、课程与日历给出准备建议" data-zh-alt="Ardor 对话界面：根据面试、课程与日历给出准备建议" data-en-alt="Ardor conversation screen: preparation advice drawn from interviews, courses and the calendar">
         <span class="zoom-mark" aria-hidden="true">↗</span>
       </button>
-      <figcaption>一次对话里，Ardor 读取面试、课程与日历，给出安排建议；这一步没有修改任何记录。</figcaption>
+      <figcaption><span class="lang-zh" lang="zh-CN">一次对话里，Ardor 读取面试、课程与日历，给出安排建议；这一步没有修改任何记录。</span><span class="lang-en" lang="en">In one conversation, Ardor reads interviews, courses and the calendar to suggest a schedule. Nothing is changed at this step.</span></figcaption>
     </figure>
 
-    <section class="chapters wrap" id="product" aria-label="产品界面">
+    <section class="chapters wrap" id="product" aria-label="产品界面" data-zh-label="产品界面" data-en-label="Product screens">
       <article class="chapter">
         <header class="chapter-head">
           <span class="chapter-no">01</span>
-          <h2>求职记录</h2>
-          <p>简历分析给出竞争力、能力雷达和按 A/B/C 分级的修改建议；写简历工作区让 Ardor 直接修改当前 LaTeX 版本，右侧即时预览。</p>
+          <h2><span class="lang-zh" lang="zh-CN">求职记录</span><span class="lang-en" lang="en">Job search record</span></h2>
+          <p><span class="lang-zh" lang="zh-CN">简历分析给出竞争力、能力雷达和按 A/B/C 分级的修改建议；写简历工作区让 Ardor 直接修改当前 LaTeX 版本，右侧即时预览。</span><span class="lang-en" lang="en">Resume analysis returns a competitiveness score, a skill radar and A/B/C-graded edits. The writing workspace lets Ardor edit the current LaTeX version with a live preview beside it.</span></p>
         </header>
         <figure class="shot">
-          <button class="shot-open" type="button" data-src="/ardor/screenshots/resume.png" data-title="简历分析" aria-label="放大简历分析界面">
-            <img src="/ardor/screenshots/resume.png" width="2880" height="1920" loading="lazy" decoding="async" alt="简历分析界面：竞争力分数、能力雷达、诊断和版本分数趋势">
+          <button class="shot-open" type="button" data-src="/ardor/screenshots/resume.png" data-zh-title="简历分析" data-en-title="Resume analysis" data-zh-label="放大简历分析界面" data-en-label="Enlarge the resume analysis screen" aria-label="放大简历分析界面">
+            <img src="/ardor/screenshots/resume.png" width="2880" height="1920" loading="lazy" decoding="async" alt="简历分析界面：竞争力分数、能力雷达、诊断和版本分数趋势" data-zh-alt="简历分析界面：竞争力分数、能力雷达、诊断和版本分数趋势" data-en-alt="Resume analysis screen: competitiveness score, skill radar, diagnosis and version score trend">
             <span class="zoom-mark" aria-hidden="true">↗</span>
           </button>
         </figure>
         <figure class="shot">
-          <button class="shot-open" type="button" data-src="/ardor/screenshots/latex.png" data-title="写简历" aria-label="放大写简历工作区">
-            <img src="/ardor/screenshots/latex.png" width="2880" height="1920" loading="lazy" decoding="async" alt="写简历工作区：Ardor 对话、修改建议与当前 LaTeX 版本预览">
+          <button class="shot-open" type="button" data-src="/ardor/screenshots/latex.png" data-zh-title="写简历" data-en-title="Resume workspace" data-zh-label="放大写简历工作区" data-en-label="Enlarge the resume workspace" aria-label="放大写简历工作区">
+            <img src="/ardor/screenshots/latex.png" width="2880" height="1920" loading="lazy" decoding="async" alt="写简历工作区：Ardor 对话、修改建议与当前 LaTeX 版本预览" data-zh-alt="写简历工作区：Ardor 对话、修改建议与当前 LaTeX 版本预览" data-en-alt="Resume workspace: Ardor conversation, suggested edits and the current LaTeX version preview">
             <span class="zoom-mark" aria-hidden="true">↗</span>
           </button>
         </figure>
@@ -72,12 +92,12 @@
       <article class="chapter">
         <header class="chapter-head">
           <span class="chapter-no">02</span>
-          <h2>面试复盘</h2>
-          <p>每轮面试的备注、原始回答、反馈和薄弱点留在同一条记录里；复盘结果保留题目与表现，供下一轮准备使用。</p>
+          <h2><span class="lang-zh" lang="zh-CN">面试复盘</span><span class="lang-en" lang="en">Interview review</span></h2>
+          <p><span class="lang-zh" lang="zh-CN">每轮面试的备注、原始回答、反馈和薄弱点留在同一条记录里；复盘结果保留题目与表现，供下一轮准备使用。</span><span class="lang-en" lang="en">Notes, original answers, feedback and weak spots from every round stay in one record. Each review keeps the question and your performance for the next round.</span></p>
         </header>
         <figure class="shot">
-          <button class="shot-open" type="button" data-src="/ardor/screenshots/interview.png" data-title="面试记录" aria-label="放大面试记录界面">
-            <img src="/ardor/screenshots/interview.png" width="2880" height="1920" loading="lazy" decoding="async" alt="面试记录界面：面试概览、强项、薄弱点与逐题反馈">
+          <button class="shot-open" type="button" data-src="/ardor/screenshots/interview.png" data-zh-title="面试记录" data-en-title="Interview record" data-zh-label="放大面试记录界面" data-en-label="Enlarge the interview record screen" aria-label="放大面试记录界面">
+            <img src="/ardor/screenshots/interview.png" width="2880" height="1920" loading="lazy" decoding="async" alt="面试记录界面：面试概览、强项、薄弱点与逐题反馈" data-zh-alt="面试记录界面：面试概览、强项、薄弱点与逐题反馈" data-en-alt="Interview record screen: overview, strengths, weak spots and per-question feedback">
             <span class="zoom-mark" aria-hidden="true">↗</span>
           </button>
         </figure>
@@ -86,12 +106,12 @@
       <article class="chapter">
         <header class="chapter-head">
           <span class="chapter-no">03</span>
-          <h2>定向学习</h2>
-          <p>把面试暴露的问题变成课程、讲解和练习；每门课标注来源和准备目标，练习结果回到下一步安排。</p>
+          <h2><span class="lang-zh" lang="zh-CN">定向学习</span><span class="lang-en" lang="en">Targeted learning</span></h2>
+          <p><span class="lang-zh" lang="zh-CN">把面试暴露的问题变成课程、讲解和练习；每门课标注来源和准备目标，练习结果回到下一步安排。</span><span class="lang-en" lang="en">Weak spots from interviews become lessons, explanations and practice. Every course names its source and goal, and practice results feed the next step.</span></p>
         </header>
         <figure class="shot">
-          <button class="shot-open" type="button" data-src="/ardor/screenshots/learning.png" data-title="学习" aria-label="放大学习界面">
-            <img src="/ardor/screenshots/learning.png" width="2880" height="1920" loading="lazy" decoding="async" alt="学习界面：消息幂等课程、来源面试问题、准备目标与练习入口">
+          <button class="shot-open" type="button" data-src="/ardor/screenshots/learning.png" data-zh-title="学习" data-en-title="Learning" data-zh-label="放大学习界面" data-en-label="Enlarge the learning screen" aria-label="放大学习界面">
+            <img src="/ardor/screenshots/learning.png" width="2880" height="1920" loading="lazy" decoding="async" alt="学习界面：消息幂等课程、来源面试问题、准备目标与练习入口" data-zh-alt="学习界面：消息幂等课程、来源面试问题、准备目标与练习入口" data-en-alt="Learning screen: idempotent messaging course, source interview question, preparation goal and practice entry">
             <span class="zoom-mark" aria-hidden="true">↗</span>
           </button>
         </figure>
@@ -100,12 +120,12 @@
       <article class="chapter">
         <header class="chapter-head">
           <span class="chapter-no">04</span>
-          <h2>Agent 执行</h2>
-          <p>对话可以读取记录、提出修改；需要写入时，Ardor 先展示目标并等你确认。模型调用和工具步骤可以在轨迹里核对。</p>
+          <h2><span class="lang-zh" lang="zh-CN">Agent 执行</span><span class="lang-en" lang="en">Agent execution</span></h2>
+          <p><span class="lang-zh" lang="zh-CN">对话可以读取记录、提出修改；需要写入时，Ardor 先展示目标并等你确认。模型调用和工具步骤可以在轨迹里核对。</span><span class="lang-en" lang="en">The conversation can read records and propose changes. Before writing, Ardor shows the target and waits for your confirmation. Model calls and tool steps stay inspectable in the trace.</span></p>
         </header>
         <figure class="shot">
-          <button class="shot-open" type="button" data-src="/ardor/screenshots/trace.png" data-title="执行轨迹" aria-label="放大执行轨迹界面">
-            <img src="/ardor/screenshots/trace.png" width="2880" height="1920" loading="lazy" decoding="async" alt="执行轨迹界面：对话时间总览、执行步骤列表与运行详情">
+          <button class="shot-open" type="button" data-src="/ardor/screenshots/trace.png" data-zh-title="执行轨迹" data-en-title="Execution trace" data-zh-label="放大执行轨迹界面" data-en-label="Enlarge the execution trace screen" aria-label="放大执行轨迹界面">
+            <img src="/ardor/screenshots/trace.png" width="2880" height="1920" loading="lazy" decoding="async" alt="执行轨迹界面：对话时间总览、执行步骤列表与运行详情" data-zh-alt="执行轨迹界面：对话时间总览、执行步骤列表与运行详情" data-en-alt="Execution trace screen: conversation timeline, step list and run details">
             <span class="zoom-mark" aria-hidden="true">↗</span>
           </button>
         </figure>
@@ -113,15 +133,15 @@
     </section>
 
     <section class="end wrap">
-      <p>Ardor 仍在持续开发。源码和最新版本在 GitHub。</p>
+      <p><span class="lang-zh" lang="zh-CN">Ardor 仍在持续开发。源码和最新版本在 GitHub。</span><span class="lang-en" lang="en">Ardor is still in active development. Source and the latest releases are on GitHub.</span></p>
       <a class="end-link" href="https://github.com/isCharles/project-ardor" target="_blank" rel="noopener noreferrer">github.com/isCharles/project-ardor <span aria-hidden="true">↗</span></a>
     </section>
   </main>
 
   <footer class="wrap">
-    <p>界面由实际 Ardor 前端渲染；人物、学校、公司、岗位、日期、文件名、分数、耗时与回复均为虚构演示数据。此页为静态展示，不连接账户数据。</p>
-    <nav aria-label="页脚导航">
-      <a href="/">← 个人网站</a>
+    <p><span class="lang-zh" lang="zh-CN">界面由实际 Ardor 前端渲染；人物、学校、公司、岗位、日期、文件名、分数、耗时与回复均为虚构演示数据。此页为静态展示，不连接账户数据。</span><span class="lang-en" lang="en">Screens are rendered by the real Ardor frontend. People, schools, companies, roles, dates, filenames, scores, timings and replies are fictional demo data. This page is static and connects to no account data.</span></p>
+    <nav aria-label="页脚导航" data-zh-label="页脚导航" data-en-label="Footer navigation">
+      <a href="/"><span class="lang-zh" lang="zh-CN">← 个人网站</span><span class="lang-en" lang="en">← Personal site</span></a>
       <a href="https://github.com/isCharles/project-ardor" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
     </nav>
   </footer>
