@@ -7,7 +7,7 @@ function seededOffset(index) {
   return Math.sin(index * 12.9898) * 0.62 + Math.sin(index * 78.233) * 0.38;
 }
 
-export function DistortedWordmark({ text = "YANG" }) {
+export function DistortedWordmark({ text = "YANG", background = BACKGROUND, foreground = FOREGROUND }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -33,9 +33,9 @@ export function DistortedWordmark({ text = "YANG" }) {
       source.width = canvas.width;
       source.height = canvas.height;
       sourceCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      sourceCtx.fillStyle = BACKGROUND;
+      sourceCtx.fillStyle = background;
       sourceCtx.fillRect(0, 0, width, height);
-      sourceCtx.fillStyle = FOREGROUND;
+      sourceCtx.fillStyle = foreground;
       sourceCtx.textAlign = "center";
       sourceCtx.textBaseline = "middle";
       sourceCtx.font = `800 ${Math.round(height * 1.1)}px Syne, Inter, sans-serif`;
@@ -47,7 +47,7 @@ export function DistortedWordmark({ text = "YANG" }) {
       frameId = 0;
       if (disposed || !visible || document.hidden) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = BACKGROUND;
+      ctx.fillStyle = background;
       ctx.fillRect(0, 0, width, height);
 
       if (shouldReset && tiles.every(tile => Math.abs(tile.x) < 0.08 && Math.abs(tile.y) < 0.08)) {
@@ -196,7 +196,7 @@ export function DistortedWordmark({ text = "YANG" }) {
       document.removeEventListener('visibilitychange', onVisibilityChange);
       reducedMotion.removeEventListener('change', onMotionChange);
     };
-  }, [text]);
+  }, [text, background, foreground]);
 
   return (
     <canvas
